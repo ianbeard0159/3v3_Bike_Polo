@@ -2,7 +2,7 @@
 
 A simple multiplayer unity game inspired by bike polo.
 
-Ian Beard
+Ian Beard Change 
 Meg Davies
 Miguel Bravo
 Sarah Dennison
