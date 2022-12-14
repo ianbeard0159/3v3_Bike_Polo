@@ -1,1 +1,3 @@
-# 3v3_Bike_Polo
+# 3v3 Bike Polo
+
+A simple multiplayer unity game inspired by bike polo.
