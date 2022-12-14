@@ -3,3 +3,4 @@
 A simple multiplayer unity game inspired by bike polo.
 
 Ian Beard
+Meg Davies
