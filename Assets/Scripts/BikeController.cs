@@ -19,6 +19,8 @@ public class BikeController : MonoBehaviour
     [SerializeField] private float turnSpeed = 160; //How quickly the bike turns when pressing left/right
                                                     //Balance will have to do with current turn speed as well
 
+
+
     public float currentBalance; //Based on some equation of speed. Could also be used as an amount of "rotation" for the bike.
                                  //So if you have lost balance because you stopped moving, rotate player 90deg
                                  //If you're balance is perfect because you're going ideal speed, rotate player 0deg
@@ -39,6 +41,15 @@ public class BikeController : MonoBehaviour
         Vector3 direction = new Vector3(x, 0, z);
         return direction;
     }
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        if(collision.gameObject.tag == "Ball")
+        {
+            
+        }
+    }
+
     public void calculateSpeed(float zInput)
     {
         //Press up or down?
