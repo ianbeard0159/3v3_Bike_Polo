@@ -4268,7 +4268,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 985931691699721243, guid: 9cd33e9cfa7378d4c8a8586468b2269e, type: 3}
       propertyPath: m_Constraints
-      value: 112
+      value: 80
       objectReference: {fileID: 0}
     - target: {fileID: 985931691699721243, guid: 9cd33e9cfa7378d4c8a8586468b2269e, type: 3}
       propertyPath: m_IsKinematic
@@ -4334,7 +4334,7 @@ Mesh:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: pb_Mesh-38820
+  m_Name: pb_Mesh26670
   serializedVersion: 10
   m_SubMeshes:
   - serializedVersion: 2
