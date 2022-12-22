@@ -12,7 +12,6 @@ public class CameraController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-
         back = -target.transform.forward;
         back.y = 0.4f;
         transform.position = target.transform.position - back * distance;

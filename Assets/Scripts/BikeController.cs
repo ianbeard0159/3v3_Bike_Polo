@@ -19,11 +19,10 @@ public class BikeController : MonoBehaviour
     [SerializeField] private float turnSpeed = 160; //How quickly the bike turns when pressing left/right
                                                     //Balance will have to do with current turn speed as well
 
+    GameObject shootCollider;
 
 
-    public float currentBalance; //Based on some equation of speed. Could also be used as an amount of "rotation" for the bike.
-                                 //So if you have lost balance because you stopped moving, rotate player 90deg
-                                 //If you're balance is perfect because you're going ideal speed, rotate player 0deg
+    public float currentBalance; //Based on some equation of speed, maybe turning status, and maybe button presses??
 
     public bool useRB = true; //for testing purposes
     public bool useTranslate = false; //for testing purposes, changes the movement system to using transfrom.Translate()
@@ -33,7 +32,11 @@ public class BikeController : MonoBehaviour
     {
         t = GetComponent<Transform>();
         rb = GetComponent<Rigidbody>();
+
+        shootCollider = gameObject.transform.GetChild(1).gameObject;
+        shootCollider.SetActive(false);
     }
+
     private Vector3 getInputDirection()
     {
         float x = Input.GetAxis("Horizontal");
@@ -42,13 +45,18 @@ public class BikeController : MonoBehaviour
         return direction;
     }
 
-    private void OnCollisionEnter(Collision collision)
-    {
-        if(collision.gameObject.tag == "Ball")
-        {
+    //private void OnCollisionEnter(Collision collision)
+    //{
+    //    if(collision.gameObject.tag == "Ball")
+    //    {
             
-        }
-    }
+    //    }
+    //}
+    //private void OnTriggerEnter(Collision collision)
+    //{
+    //    Debug.Log("BikeController trigger enter");
+    //}
+
 
     public void calculateSpeed(float zInput)
     {
@@ -115,15 +123,31 @@ public class BikeController : MonoBehaviour
         }
     }
 
+    private void getShootInput()
+    {
+        if (Input.GetButtonDown("Fire1"))
+        {
+            Debug.Log("Fire 1 was clicked");
+            shootCollider.gameObject.SetActive(true);
+        }
+
+        if (Input.GetButtonUp("Fire1"))
+        {
+            shootCollider.gameObject.SetActive(false);
+        }
+    }
+
     // Update is called once per frame
     void Update()
     {
+        getShootInput();
+
         inputDir = getInputDirection();
+
         calculateSpeed(inputDir.z);
+
         turnSpeed = (speed * speed) * turnSpeedModifer + 20;
         currentBalance = 4.5f * speed - 90;
-
-        //transform.Rotate(new Vector3(0, 0, currentBalance));
 
         if (useTranslate)
         {
