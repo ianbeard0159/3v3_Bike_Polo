@@ -5,6 +5,7 @@ TagManager:
   serializedVersion: 2
   tags:
   - Bike
+  - Ball
   layers:
   - Default
   - TransparentFX
