@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Bike
   - Ball
+  - Ground
   layers:
   - Default
   - TransparentFX
