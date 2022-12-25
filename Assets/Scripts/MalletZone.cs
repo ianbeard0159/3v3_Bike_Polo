@@ -20,7 +20,6 @@ public class MalletZone : MonoBehaviour
     {
         mallet = gameObject.GetComponentInParent<MalletController>();
         zone = GetComponent<Collider>();
-        //holdSpot = gameObject.transform.GetChild(0).transform.position;
     }
 
     public void turnOffZone(bool onOff)
@@ -37,13 +36,4 @@ public class MalletZone : MonoBehaviour
             mallet.ballRB = other.attachedRigidbody; //Grab the RB information of the ball to give to MalletController
         }
     }
-
-    //private void OnTriggerStay(Collider other)
-    //{
-    //    if (other.tag == "Ball")
-    //        mallet.ballInZone = true;
-
-    //}
-
-
 }

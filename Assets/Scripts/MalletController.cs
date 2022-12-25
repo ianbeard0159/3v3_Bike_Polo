@@ -26,6 +26,10 @@ public class MalletController : MonoBehaviour
         malletRightZone = gameObject.transform.GetChild(0).gameObject.GetComponent<MalletZone>();
         malletLeftZone = gameObject.transform.GetChild(1).gameObject.GetComponent<MalletZone>();
         turnOnOffZones(false);
+
+        Debug.Log("Right click or press X on controller to switch sides");
+        Debug.Log("Left click/hold or press/hold A on controller to pick up Ball");
+        Debug.Log("Let go of LeftClick or A on controller to Shoot Ball while holding it");
     }
 
     //Disables the trigger colliders of its zones when passed false, enables them when passed on
@@ -90,45 +94,14 @@ public class MalletController : MonoBehaviour
 
     }
 
-    //Getting inputs specific to times when Player is currently holding the ball
-    private void GetHoldingBallInputs()
-    {
-        //if (Input.GetButtonUp("Hold/Shoot")) //Let go of A/LeftClick
-        //{
-        //    ballRB.isKinematic = false; //Make sure the ball isnt kinematic anymore before we shoot it
-        //    shootBall(transform.forward); //we can shoot it
-        //    holdingBall = false; //no longer holding ball
-        //    turnOnOffZones(false); //Turn off zones whether we were shooting or not
-        //}
-
-        //if (Input.GetButtonDown("SwitchSide")) //Pressed X or LeftClick
-        //{
-        //    SwitchSides();
-        //}
-    }
-
     //Get inputs from player to control things related to "Mallet use" or manipulating the ball
     private void getMalletInputs()
     {
-        if (holdingBall)
-        {
-
-        }
-
-        if (!holdingBall)
-        {
-
-        }
-
-        if (Input.GetButton("Hold/Shoot"))  //Pressing A/LeftClick
+        if (Input.GetButton("Hold/Shoot"))  //While Pressing A/LeftClick
         {
             turnOnOffZones(true); //turn on mallet zones to search for the ball
             HoldBall(); //attempt to hold the ball if its within zones area of reach
         }
-        //if (Input.GetButtonUp("Hold/Shoot")) //Let go of A/LeftClick
-        //{
-        //    turnOnOffZones(false); //Turn off zones whether we were shooting or not
-        //}
 
         if (Input.GetButtonUp("Hold/Shoot")) //Let go of A/LeftClick
         {
@@ -154,11 +127,5 @@ public class MalletController : MonoBehaviour
     {
         getMalletInputs();
 
-        //if (holdingBall)
-        //{
-        //    GetHoldingBallInputs();
-        //}
-        
-        
     }
 }

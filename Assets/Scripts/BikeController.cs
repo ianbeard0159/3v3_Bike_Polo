@@ -36,6 +36,11 @@ public class BikeController : MonoBehaviour
         t = GetComponent<Transform>();
         rb = GetComponent<Rigidbody>();
         mallet = gameObject.transform.GetChild(1).gameObject.GetComponent<MalletController>();
+
+        Debug.Log("UpKey or W or Tilt Left Stick Forward on controller to Move forward/accelerate");
+        Debug.Log("DownKey or S or Tilt Left Stick Backward on controller to Slow down/break");
+        Debug.Log("Left/Right Key, A/D or Tilt Left Stick Left/Right on controller to Turn");
+
     }
 
     private Vector3 getInputDirection()
