@@ -23,12 +23,9 @@ public class BikeController : MonoBehaviour
 
     //Used just to set current velocity of Mallet:
     MalletController mallet;
-    public Vector3 currentVel; 
+    private Vector3 currentVel;
 
-    public float currentBalance; //Based on some equation of speed, maybe turning status, and maybe button presses??
-
-    public bool useRB = true; //for testing purposes
-    public bool useTranslate = false; //for testing purposes, changes the movement system to using transfrom.Translate()
+    public float currentBalance = 100; //Based on some equation of speed, maybe turning status, and maybe button presses??
 
     // Start is called before the first frame update
     void Start()
@@ -43,7 +40,7 @@ public class BikeController : MonoBehaviour
 
     }
 
-    private Vector3 getInputDirection()
+    private Vector3 GetInputDirection()
     {
         float x = Input.GetAxis("Horizontal"); //UpKey, W, or Forward on left joystick
         float z = Input.GetAxis("Vertical"); //DownKey, S, or Back on left joystick
@@ -61,8 +58,21 @@ public class BikeController : MonoBehaviour
         }
     }
 
+    public void CalculateBalance()
+    {
+        if(speed >= maxSpeed / 2)
+        {
+            currentBalance--;
+        }
+
+        if(speed < maxSpeed / 2)
+        {
+            currentBalance++;
+        }
+    }
+
     //Calculates and sets what the current speed is
-    public void calculateSpeed(float zInput)
+    public void CalculateSpeed(float zInput)
     {
         //Press up or down?
         if (zInput > 0 && speed < maxSpeed) //Speeding up with up key 
@@ -105,14 +115,6 @@ public class BikeController : MonoBehaviour
 
     }
 
-    public void TranslateMove(Vector3 direction)
-    {
-        //calculateSpeed(inputDir.z);
-        //turnSpeed = (speed * speed) * turnSpeedModifer + 20;
-        t.Rotate(new Vector3(0, direction.x * Time.deltaTime * turnSpeed, 0));
-
-        transform.Translate(Vector3.forward * speed * Time.deltaTime);
-    }
     public void MovePositioRB(Vector3 direction)
     {
         Quaternion turn = Quaternion.Euler(0, inputDir.x * Time.fixedDeltaTime * turnSpeed, 0);
@@ -123,36 +125,14 @@ public class BikeController : MonoBehaviour
 
     void FixedUpdate()
     {
-        if (rb == null)
-        {
-            return;
-        }
-        if (useRB)
-        {
-            MovePositioRB(inputDir); //Move based on input direction
-        }
+        MovePositioRB(inputDir); //Move based on input direction
     }
 
     // Update is called once per frame
     void Update()
     {
-        inputDir = getInputDirection();
-
-        calculateSpeed(inputDir.z);
-        //currentBalance = 4.5f * speed - 90;
-
-        if (useTranslate)
-        {
-            useRB = false;
-        }
-        if (useRB)
-        {
-            useTranslate = false;
-        }
-           
-        if (useTranslate)
-        {
-            TranslateMove(inputDir);
-        }
+        inputDir = GetInputDirection();
+        CalculateSpeed(inputDir.z);
+        CalculateBalance();
     }
 }
