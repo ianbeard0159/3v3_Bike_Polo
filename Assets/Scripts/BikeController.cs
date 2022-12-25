@@ -35,7 +35,7 @@ public class BikeController : MonoBehaviour
     {
         t = GetComponent<Transform>();
         rb = GetComponent<Rigidbody>();
-        mallet = gameObject.transform.GetChild(1).gameObject.GetComponent<MalletController>();
+        mallet = gameObject.transform.Find("Mallet").gameObject.GetComponent<MalletController>();
     }
 
     private Vector3 getInputDirection()
