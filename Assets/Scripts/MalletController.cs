@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Cinemachine;
 
 
 //This class handles everything soecific to controlling the "mallet" and ball
@@ -20,12 +21,22 @@ public class MalletController : MonoBehaviour
     MalletZone malletRightZone;        //Mallets area of reach on the left side
     public MalletZone currentZone;      //The zone that is currently holding the ball
 
+    [SerializeField] private CinemachineFreeLook mainCam;
+    [SerializeField] private CinemachineFreeLook leftCam;
+    [SerializeField] private CinemachineFreeLook rightCam;
+
+
     void Start()
     {
         ballInZone = false;
         malletRightZone = gameObject.transform.GetChild(0).gameObject.GetComponent<MalletZone>();
         malletLeftZone = gameObject.transform.GetChild(1).gameObject.GetComponent<MalletZone>();
         turnOnOffZones(false);
+
+        mainCam.Priority = 10;
+        leftCam.Priority = 0;
+        rightCam.Priority = 0;
+        mainCam.m_XAxis.Value = 0;
 
         Debug.Log("Right click or press X on controller to switch sides");
         Debug.Log("Left click/hold or press/hold A on controller to pick up Ball");
@@ -47,6 +58,7 @@ public class MalletController : MonoBehaviour
     //TODO pass a direction from inputs instead of just transform.forward
     public void shootBall(Vector3 direction)
     {
+
         ballRB.isKinematic = false; //Male sure the ball isnt kinematic anymore so we shoot it with force
         ballRB.AddForce(currVel + (shootForce * direction));
         currentZone = null; //Ball no longer in a zone
@@ -101,13 +113,15 @@ public class MalletController : MonoBehaviour
         {
             turnOnOffZones(true); //turn on mallet zones to search for the ball
             HoldBall(); //attempt to hold the ball if its within zones area of reach
+            
         }
 
         if (Input.GetButtonUp("Hold/Shoot")) //Let go of A/LeftClick
         {
             if (holdingBall) //If you were holding the ball, 
             {
-                shootBall(transform.forward); //we can shoot it
+                Debug.Log(Camera.main.transform.rotation * Vector3.forward);
+                shootBall(Camera.main.transform.rotation * Vector3.forward); //we can shoot it
                 holdingBall = false; //no longer holding it
             }
 
@@ -123,9 +137,30 @@ public class MalletController : MonoBehaviour
         }
     }
 
+
     private void Update()
     {
         getMalletInputs();
 
+        if (currentZone == null) {
+            mainCam.Priority = 10;
+            leftCam.Priority = 0;
+            rightCam.Priority = 0;
+        }
+        else if (currentZone.name == "RightZone") {
+            mainCam.Priority = 0;
+            leftCam.Priority = 0;
+            rightCam.Priority = 10;
+        }
+        else if (currentZone.name == "LeftZone") {
+            mainCam.Priority = 0;
+            leftCam.Priority = 10;
+            rightCam.Priority = 0;
+        }
+
+        //if (holdingBall)
+        //{
+        //    GetHoldingBallInputs();
+        //}
     }
 }
