@@ -38,8 +38,8 @@ InputManager:
     axis: 0
     joyNum: 0
   - serializedVersion: 3
-    m_Name: Fire1
-    descriptiveName: 
+    m_Name: Hold/Shoot
+    descriptiveName: keyboard/mouses hold/shoot, Left Click
     descriptiveNegativeName: 
     negativeButton: 
     positiveButton: left ctrl
@@ -54,8 +54,8 @@ InputManager:
     axis: 0
     joyNum: 0
   - serializedVersion: 3
-    m_Name: Fire2
-    descriptiveName: 
+    m_Name: SwitchSide
+    descriptiveName: keyboard/mouses switch side button, Right Click
     descriptiveNegativeName: 
     negativeButton: 
     positiveButton: left alt
@@ -182,8 +182,8 @@ InputManager:
     axis: 1
     joyNum: 0
   - serializedVersion: 3
-    m_Name: Fire1
-    descriptiveName: 
+    m_Name: Hold/Shoot
+    descriptiveName: controllers hold/shoot, A
     descriptiveNegativeName: 
     negativeButton: 
     positiveButton: joystick button 0
@@ -214,8 +214,8 @@ InputManager:
     axis: 0
     joyNum: 0
   - serializedVersion: 3
-    m_Name: Fire3
-    descriptiveName: 
+    m_Name: SwitchSide
+    descriptiveName: controllers switch side button, X
     descriptiveNegativeName: 
     negativeButton: 
     positiveButton: joystick button 2
@@ -293,3 +293,4 @@ InputManager:
     type: 0
     axis: 0
     joyNum: 0
+  m_UsePhysicalKeys: 0

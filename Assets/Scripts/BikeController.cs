@@ -9,7 +9,7 @@ public class BikeController : MonoBehaviour
     private Vector3 inputDir;
 
     //All these values can be tweaked to change the feel of the movement
-    [SerializeField] private float speed = 0;
+    [SerializeField] public float speed = 0;
     [SerializeField] private float maxSpeed = 20;
     [SerializeField] private float minSpeed = 0;
     [SerializeField] private float acceleration = .06f; //How quickly spped max speed when speeding up
@@ -19,8 +19,11 @@ public class BikeController : MonoBehaviour
     [SerializeField] private float turnSpeed = 160; //How quickly the bike turns when pressing left/right
                                                     //Balance will have to do with current turn speed as well
 
-    GameObject shootCollider;
+    [SerializeField] private float pushForce = 40f; //How much force is applied to the ball if its pushed by the Bike
 
+    //Used just to set current velocity of Mallet:
+    MalletController mallet;
+    public Vector3 currentVel; 
 
     public float currentBalance; //Based on some equation of speed, maybe turning status, and maybe button presses??
 
@@ -32,32 +35,28 @@ public class BikeController : MonoBehaviour
     {
         t = GetComponent<Transform>();
         rb = GetComponent<Rigidbody>();
-
-        shootCollider = gameObject.transform.GetChild(1).gameObject;
-        shootCollider.SetActive(false);
+        mallet = gameObject.transform.GetChild(1).gameObject.GetComponent<MalletController>();
     }
 
     private Vector3 getInputDirection()
     {
-        float x = Input.GetAxis("Horizontal");
-        float z = Input.GetAxis("Vertical");
+        float x = Input.GetAxis("Horizontal"); //UpKey, W, or Forward on left joystick
+        float z = Input.GetAxis("Vertical"); //DownKey, S, or Back on left joystick
         Vector3 direction = new Vector3(x, 0, z);
         return direction;
     }
 
-    //private void OnCollisionEnter(Collision collision)
-    //{
-    //    if(collision.gameObject.tag == "Ball")
-    //    {
-            
-    //    }
-    //}
-    //private void OnTriggerEnter(Collision collision)
-    //{
-    //    Debug.Log("BikeController trigger enter");
-    //}
+    //Pushes the ball with a force defined by pushForce if bike collides with it
+    private void OnCollisionEnter(Collision collision)
+    {
+        if (collision.gameObject.tag == "Ball")
+        {
+            Vector3 direction = (collision.gameObject.transform.position - transform.position);
+            collision.rigidbody.AddForce(pushForce * direction);
+        }
+    }
 
-
+    //Calculates and sets what the current speed is
     public void calculateSpeed(float zInput)
     {
         //Press up or down?
@@ -72,7 +71,7 @@ public class BikeController : MonoBehaviour
                 speed = maxSpeed; //No speeding up, already Too fast
             }
         }
-        if (zInput < 0) //Slowing down with down key 
+        if (zInput < 0) //Slowing down with down key, maybe add reverse here
         {
             if (speed > minSpeed) //Speed is more than the min speed, slow down
             {
@@ -83,18 +82,24 @@ public class BikeController : MonoBehaviour
                 speed = minSpeed; //No slowing down, already Too slow
             }
         }
-        if (zInput == 0) //Not pressing any keys, slow down more gradually
+        if (zInput == 0) //Not pressing any keys, slow down more gradually to a halt
         {
-            if (speed > minSpeed)
+            if (speed > 0)
             {
                 speed -= deceleration / 2;
             }
             else
             {
-                speed = minSpeed;
+                speed = 0;
             }
         }
+
+        currentVel = transform.forward * speed;
+        mallet.currVel = currentVel;
+        turnSpeed = (speed * speed) * turnSpeedModifer + 20;
+
     }
+
     public void TranslateMove(Vector3 direction)
     {
         //calculateSpeed(inputDir.z);
@@ -119,35 +124,17 @@ public class BikeController : MonoBehaviour
         }
         if (useRB)
         {
-            MovePositioRB(inputDir);
-        }
-    }
-
-    private void getShootInput()
-    {
-        if (Input.GetButtonDown("Fire1"))
-        {
-            Debug.Log("Fire 1 was clicked");
-            shootCollider.gameObject.SetActive(true);
-        }
-
-        if (Input.GetButtonUp("Fire1"))
-        {
-            shootCollider.gameObject.SetActive(false);
+            MovePositioRB(inputDir); //Move based on input direction
         }
     }
 
     // Update is called once per frame
     void Update()
     {
-        getShootInput();
-
         inputDir = getInputDirection();
 
         calculateSpeed(inputDir.z);
-
-        turnSpeed = (speed * speed) * turnSpeedModifer + 20;
-        currentBalance = 4.5f * speed - 90;
+        //currentBalance = 4.5f * speed - 90;
 
         if (useTranslate)
         {
@@ -163,5 +150,4 @@ public class BikeController : MonoBehaviour
             TranslateMove(inputDir);
         }
     }
-
 }
