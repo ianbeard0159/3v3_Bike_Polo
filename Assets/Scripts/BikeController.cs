@@ -21,7 +21,9 @@ public class BikeController : MonoBehaviour
 
     [SerializeField] private float pushForce = 40f; //How much force is applied to the ball if its pushed by the Bike
 
+    //Used just to set current velocity of Mallet:
     MalletController mallet;
+    public Vector3 currentVel; 
 
     public float currentBalance; //Based on some equation of speed, maybe turning status, and maybe button presses??
 
@@ -38,12 +40,13 @@ public class BikeController : MonoBehaviour
 
     private Vector3 getInputDirection()
     {
-        float x = Input.GetAxis("Horizontal");
-        float z = Input.GetAxis("Vertical");
+        float x = Input.GetAxis("Horizontal"); //UpKey, W, or Forward on left joystick
+        float z = Input.GetAxis("Vertical"); //DownKey, S, or Back on left joystick
         Vector3 direction = new Vector3(x, 0, z);
         return direction;
     }
 
+    //Pushes the ball with a force defined by pushForce if bike collides with it
     private void OnCollisionEnter(Collision collision)
     {
         if (collision.gameObject.tag == "Ball")
@@ -53,6 +56,7 @@ public class BikeController : MonoBehaviour
         }
     }
 
+    //Calculates and sets what the current speed is
     public void calculateSpeed(float zInput)
     {
         //Press up or down?
@@ -67,7 +71,7 @@ public class BikeController : MonoBehaviour
                 speed = maxSpeed; //No speeding up, already Too fast
             }
         }
-        if (zInput < 0) //Slowing down with down key 
+        if (zInput < 0) //Slowing down with down key, maybe add reverse here
         {
             if (speed > minSpeed) //Speed is more than the min speed, slow down
             {
@@ -78,17 +82,22 @@ public class BikeController : MonoBehaviour
                 speed = minSpeed; //No slowing down, already Too slow
             }
         }
-        if (zInput == 0) //Not pressing any keys, slow down more gradually
+        if (zInput == 0) //Not pressing any keys, slow down more gradually to a halt
         {
-            if (speed > minSpeed)
+            if (speed > 0)
             {
                 speed -= deceleration / 2;
             }
             else
             {
-                speed = minSpeed;
+                speed = 0;
             }
         }
+
+        currentVel = transform.forward * speed;
+        mallet.currVel = currentVel;
+        turnSpeed = (speed * speed) * turnSpeedModifer + 20;
+
     }
 
     public void TranslateMove(Vector3 direction)
@@ -115,43 +124,17 @@ public class BikeController : MonoBehaviour
         }
         if (useRB)
         {
-            MovePositioRB(inputDir);
-        }
-    }
-
-    private void getShootInput()
-    {
-        if (Input.GetButton("Fire1"))
-        {
-            mallet.turnOnOffMallet(true);
-            mallet.HoldBall();
-        }
-
-        if (Input.GetButtonUp("Fire1"))
-        {
-            if (mallet.holdingBall)
-            {
-                Vector3 directionalSpeed = transform.forward * speed;
-                mallet.currVel = directionalSpeed;
-                mallet.shootBall(transform.forward);
-                mallet.holdingBall = false;
-            }
-
-            mallet.turnOnOffMallet(false);
+            MovePositioRB(inputDir); //Move based on input direction
         }
     }
 
     // Update is called once per frame
     void Update()
     {
-        getShootInput();
-
         inputDir = getInputDirection();
 
         calculateSpeed(inputDir.z);
-
-        turnSpeed = (speed * speed) * turnSpeedModifer + 20;
-        currentBalance = 4.5f * speed - 90;
+        //currentBalance = 4.5f * speed - 90;
 
         if (useTranslate)
         {

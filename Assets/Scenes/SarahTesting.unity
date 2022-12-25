@@ -281,7 +281,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   mallet: {fileID: 0}
-  zoneSide: 
 --- !u!43 &145641231
 Mesh:
   m_ObjectHideFlags: 0
@@ -1894,7 +1893,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   mallet: {fileID: 0}
-  zoneSide: 
 --- !u!43 &858782392
 Mesh:
   m_ObjectHideFlags: 0
@@ -2098,6 +2096,7 @@ MonoBehaviour:
   turnSpeedModifer: 0.4
   turnSpeed: 160
   pushForce: 40
+  currentVel: {x: 0, y: 0, z: 0}
   currentBalance: 0
   useRB: 1
   useTranslate: 0
@@ -5746,7 +5745,7 @@ GameObject:
   - component: {fileID: 1976351176}
   - component: {fileID: 1976351178}
   m_Layer: 0
-  m_Name: MalletZone
+  m_Name: Mallet
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -5783,12 +5782,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ballRB: {fileID: 0}
   shootForce: 200
-  clickDown: 0
   holdingBall: 0
-  ballOnRight: 0
-  ballOnLeft: 0
   ballInZone: 0
   currVel: {x: 0, y: 0, z: 0}
+  currentZone: {fileID: 0}
 --- !u!43 &1982388868
 Mesh:
   m_ObjectHideFlags: 0
