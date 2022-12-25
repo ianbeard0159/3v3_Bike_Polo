@@ -8,6 +8,7 @@ using UnityEngine;
 public class MalletZone : MonoBehaviour
 {
     public MalletController mallet;
+    public bool ballInZone;
     Collider zone;
 
     public Vector3 holdSpot    //The position of this Zones "hold spot/pocket"
@@ -25,15 +26,19 @@ public class MalletZone : MonoBehaviour
     public void turnOffZone(bool onOff)
     {
         zone.enabled = onOff;
+
+        if (onOff == false)
+            ballInZone = false;
     }
 
     private void OnTriggerEnter(Collider other)
     {
-        if(other.tag == "Ball")
+        if (other.tag == "Ball")
         {
-            mallet.ballInZone = true; //Make sure MalletController knows the ball is within reach and
+            ballInZone = true; //Make sure MalletController knows the ball is within reach and
             mallet.currentZone = this; //which zone side the ball is currently in reach of
             mallet.ballRB = other.attachedRigidbody; //Grab the RB information of the ball to give to MalletController
         }
     }
 }
+

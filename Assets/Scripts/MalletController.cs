@@ -12,7 +12,7 @@ public class MalletController : MonoBehaviour
     public float shootForce;    //The force that is applied to the ball when shooting with the mallet
 
     public bool holdingBall;    //Is tje ball currently being held in the mallets hold position?
-    public bool ballInZone;     //Is the ball in one of its trigger colliders?
+    //public bool ballInZone;     //Is the ball in one of its trigger colliders?
 
     public Vector3 currVel;     //Current velocity, set by BikeController
 
@@ -22,10 +22,10 @@ public class MalletController : MonoBehaviour
 
     void Start()
     {
-        ballInZone = false;
+        //ballInZone = false;
         malletRightZone = gameObject.transform.GetChild(0).gameObject.GetComponent<MalletZone>();
         malletLeftZone = gameObject.transform.GetChild(1).gameObject.GetComponent<MalletZone>();
-        turnOnOffZones(false);
+        turnOnOffZones(false, "Both");
 
         Debug.Log("Right click or press X on controller to switch sides");
         Debug.Log("Left click/hold or press/hold A on controller to pick up Ball");
@@ -33,14 +33,23 @@ public class MalletController : MonoBehaviour
     }
 
     //Disables the trigger colliders of its zones when passed false, enables them when passed on
+    //Pass in a String matching the side needing to be turn off/on, "Left", "Right", or "Both"
     //Also makes sure that ballInZone gets turned false when turning off Zones
-    public void turnOnOffZones(bool onOff)
+    public void turnOnOffZones(bool onOff, string side)
     {
-        malletLeftZone.turnOffZone(onOff);
-        malletRightZone.turnOffZone(onOff);
-
-        if(onOff == false)
-            ballInZone = false;
+        switch (side)
+        {
+            case "Left":
+                malletLeftZone.turnOffZone(onOff);
+                break;
+            case "Right":
+                malletRightZone.turnOffZone(onOff);
+                break;
+            case "Both":
+                malletLeftZone.turnOffZone(onOff);
+                malletRightZone.turnOffZone(onOff);
+                break;
+        }
     }
 
     //Shoots the ball in a direction
@@ -74,11 +83,14 @@ public class MalletController : MonoBehaviour
     //Holds the ball in one of its zones and manually makes sure ball's rigidbody can't move/get forces applied
     public void HoldBall()
     {
-        if (currentZone != null)
+        if(currentZone != null)
         {
-            holdingBall = true;
-            ballRB.isKinematic = true; //Make the ball kinematic while its being held
-            ballRB.gameObject.transform.position = currentZone.holdSpot;
+            if (currentZone.ballInZone)
+            {
+                holdingBall = true;
+                ballRB.isKinematic = true; //Make the ball kinematic while its being held
+                ballRB.gameObject.transform.position = currentZone.holdSpot;
+            }
         }
     }
 
@@ -99,7 +111,7 @@ public class MalletController : MonoBehaviour
     {
         if (Input.GetButton("Hold/Shoot"))  //While Pressing A/LeftClick
         {
-            turnOnOffZones(true); //turn on mallet zones to search for the ball
+            turnOnOffZones(true, "Both"); //turn on mallet zones to search for the ball
             HoldBall(); //attempt to hold the ball if its within zones area of reach
         }
 
@@ -111,7 +123,7 @@ public class MalletController : MonoBehaviour
                 holdingBall = false; //no longer holding it
             }
 
-            turnOnOffZones(false); //Turn off zones whether we were shooting or not
+            turnOnOffZones(false, "Both"); //Turn off zones whether we were shooting or not
         }
 
         if (Input.GetButtonDown("SwitchSide")) //Pressed X or LeftClick
