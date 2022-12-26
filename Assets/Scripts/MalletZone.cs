@@ -50,12 +50,12 @@ public class MalletZone : MonoBehaviour
             mallet.ballRB = other.attachedRigidbody; //Grab the RB information of the ball to give to MalletController
         }
 
-        if(other.tag == "Player")
-        {
-            playerInZone = true;
-            mallet.currentStealablePlayer = other.GetComponentInParent<MalletController>();
-            Debug.Log("Current stealable player: " + mallet.currentStealablePlayer.name);
-        }
+        //if (other.tag == "Player")
+        //{
+        //    playerInZone = true;
+        //    mallet.currentStealablePlayer = other.GetComponentInParent<MalletController>();
+        //    Debug.Log("Current stealable player: " + mallet.currentStealablePlayer.name);
+        //}
     }
 }
 

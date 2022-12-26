@@ -25,6 +25,8 @@ public class MalletController : MonoBehaviour
     [SerializeField] private CinemachineFreeLook leftCam;
     [SerializeField] private CinemachineFreeLook rightCam;
 
+    public MalletController currentStealablePlayer;
+
 
     void Start()
     {
