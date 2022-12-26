@@ -20,12 +20,13 @@ public class MalletController : MonoBehaviour
     MalletZone malletRightZone;        //Mallets area of reach on the left side
     public MalletZone currentZone;      //The zone that is currently holding the ball
 
+    public MalletController currentStealablePlayer; //Another MalleteController that is on the steal range
+    //MalletController currentPassablePlayer;
+
     void Start()
     {
-        //ballInZone = false;
         malletRightZone = gameObject.transform.GetChild(0).gameObject.GetComponent<MalletZone>();
         malletLeftZone = gameObject.transform.GetChild(1).gameObject.GetComponent<MalletZone>();
-        turnOnOffZones(false, "Both");
 
         Debug.Log("Right click or press X on controller to switch sides");
         Debug.Log("Left click/hold or press/hold A on controller to pick up Ball");
@@ -34,7 +35,6 @@ public class MalletController : MonoBehaviour
 
     //Disables the trigger colliders of its zones when passed false, enables them when passed on
     //Pass in a String matching the side needing to be turn off/on, "Left", "Right", or "Both"
-    //Also makes sure that ballInZone gets turned false when turning off Zones
     public void turnOnOffZones(bool onOff, string side)
     {
         switch (side)
@@ -89,15 +89,45 @@ public class MalletController : MonoBehaviour
             {
                 holdingBall = true;
                 ballRB.isKinematic = true; //Make the ball kinematic while its being held
-                ballRB.gameObject.transform.position = currentZone.holdSpot;
+                ballRB.gameObject.transform.position = currentZone.holdSpot; //Put the ball in the current zones hold spot
             }
         }
+    }
+
+
+    //TODOS:
+    //each players controller has to know when a ball was stolen from them OR if they can steal the ball from amother player and then be able to steal
+    //In order to prevent being able to continue to hold the ball even after ball is stolen
+
+    //TODO
+    public void BeStolenFrom()
+    {
+        //Pseudo code logic
+        //if (holdingBall && !currentStealablePlayer.holdingBall) //Im holding the ball, they're not
+        //{
+        //    if(currentStealablePlayer != null)
+        //    {
+        //        holdingBall = false;
+        //    }
+        //}
+        
     }
 
     //TODO
     public void StealBall()
     {
-
+        //Pseudo code logic
+        //if (!holdingBall) //I'm not holding the ball
+        //{
+        //    if (currentStealablePlayer.holdingBall) //They are
+        //    {
+        //        if (currentStealablePlayer != null)
+        //        {
+        //            HoldBall(); //Hold the ball
+        //            currentStablePlayer.BeStolenFrom();
+        //        }
+        //    }
+        //}
     }
 
     //TODO
@@ -133,6 +163,11 @@ public class MalletController : MonoBehaviour
                 SwitchSides();
             }
         }
+
+        //if (Input.GetButtonDown("Steal")) //Pressed B or mouse2 on to steal
+        //{
+        //    StealBall();
+        //}
     }
 
     private void Update()

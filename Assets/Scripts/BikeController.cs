@@ -34,16 +34,16 @@ public class BikeController : MonoBehaviour
         rb = GetComponent<Rigidbody>();
         mallet = gameObject.transform.GetChild(1).gameObject.GetComponent<MalletController>();
 
-        Debug.Log("UpKey or W or Tilt Left Stick Forward on controller to Move forward/accelerate");
-        Debug.Log("DownKey or S or Tilt Left Stick Backward on controller to Slow down/break");
+        Debug.Log("UpKey/W or Right Trigger on controller to Move forward/Accelerate");
+        Debug.Log("DownKey/S or Left Trigger on controller to Slow down/Break");
         Debug.Log("Left/Right Key, A/D or Tilt Left Stick Left/Right on controller to Turn");
 
     }
 
     private Vector3 GetInputDirection()
     {
-        float x = Input.GetAxis("Horizontal"); //UpKey, W, or Forward on left joystick
-        float z = Input.GetAxis("Vertical"); //DownKey, S, or Back on left joystick
+        float x = Input.GetAxis("Turn"); //Left/Right keys, A/D keys, or Left joystick on controller
+        float z = Input.GetAxis("Drive"); //Down/Up, S/W or Left/Right trigger on controller
         Vector3 direction = new Vector3(x, 0, z);
         return direction;
     }
@@ -75,7 +75,7 @@ public class BikeController : MonoBehaviour
     public void CalculateSpeed(float zInput)
     {
         //Press up or down?
-        if (zInput > 0 && speed < maxSpeed) //Speeding up with up key 
+        if (zInput > 0 && speed < maxSpeed) //Speeding up with up key up right trigger
         {
             if (speed < maxSpeed) //Speed is less than max speed, speed up
             {
@@ -86,7 +86,7 @@ public class BikeController : MonoBehaviour
                 speed = maxSpeed; //No speeding up, already Too fast
             }
         }
-        if (zInput < 0) //Slowing down with down key, maybe add reverse here
+        if (zInput < 0) //Slowing down with down key or right trigger, maybe add reverse here
         {
             if (speed > minSpeed) //Speed is more than the min speed, slow down
             {
