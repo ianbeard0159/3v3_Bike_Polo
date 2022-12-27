@@ -1235,7 +1235,7 @@ GameObject:
   - component: {fileID: 688151061}
   m_Layer: 0
   m_Name: Short Wall
-  m_TagString: Untagged
+  m_TagString: Wall
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1800,7 +1800,7 @@ GameObject:
   - component: {fileID: 723421281}
   m_Layer: 0
   m_Name: Corner
-  m_TagString: Untagged
+  m_TagString: Wall
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -2706,6 +2706,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   speed: 0
+  dashingSpeedModifier: 2.5
+  dashDuration: 0.75
+  dashCooldown: 5
   maxSpeed: 20
   minSpeed: 0
   acceleration: 0.06
@@ -2713,6 +2716,7 @@ MonoBehaviour:
   turnSpeedModifer: 0.4
   turnSpeed: 160
   pushForce: 40
+  isDashing: 0
   currentBalance: 0
 --- !u!4 &893096828
 Transform:
@@ -2796,7 +2800,7 @@ GameObject:
   - component: {fileID: 955312654}
   m_Layer: 0
   m_Name: Long Wall
-  m_TagString: Untagged
+  m_TagString: Wall
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -3140,7 +3144,7 @@ GameObject:
   - component: {fileID: 955465480}
   m_Layer: 0
   m_Name: Corner
-  m_TagString: Untagged
+  m_TagString: Wall
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -3171,7 +3175,7 @@ MeshCollider:
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 4
-  m_Convex: 0
+  m_Convex: 1
   m_CookingOptions: 30
   m_Mesh: {fileID: 1982388868}
 --- !u!33 &955465481
@@ -4881,7 +4885,7 @@ GameObject:
   - component: {fileID: 1224934050}
   m_Layer: 0
   m_Name: Long Wall
-  m_TagString: Untagged
+  m_TagString: Wall
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -4912,7 +4916,7 @@ MeshCollider:
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 4
-  m_Convex: 0
+  m_Convex: 1
   m_CookingOptions: 30
   m_Mesh: {fileID: 858782392}
 --- !u!33 &1224934051
@@ -7048,7 +7052,7 @@ GameObject:
   - component: {fileID: 1828626705}
   m_Layer: 0
   m_Name: Corner
-  m_TagString: Untagged
+  m_TagString: Wall
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -7392,7 +7396,7 @@ GameObject:
   - component: {fileID: 1866984345}
   m_Layer: 0
   m_Name: Short Wall
-  m_TagString: Untagged
+  m_TagString: Wall
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -7423,7 +7427,7 @@ MeshCollider:
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 4
-  m_Convex: 0
+  m_Convex: 1
   m_CookingOptions: 30
   m_Mesh: {fileID: 145641231}
 --- !u!33 &1866984346
@@ -8619,7 +8623,7 @@ GameObject:
   - component: {fileID: 2020992601}
   m_Layer: 0
   m_Name: Corner
-  m_TagString: Untagged
+  m_TagString: Wall
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
