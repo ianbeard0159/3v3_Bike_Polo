@@ -162,6 +162,9 @@ public class BikeController : MonoBehaviour
     void FixedUpdate()
     {
         MovePositioRB(inputDir); //Move based on input direction
+        if (currentZone != mallet.currentZone) {
+            updateHoldingState();
+        }
     }
 
     // Update is called once per frame
