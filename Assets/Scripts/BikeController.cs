@@ -27,6 +27,13 @@ public class BikeController : MonoBehaviour
 
     public float currentBalance = 100; //Based on some equation of speed, maybe turning status, and maybe button presses??
 
+    private Animator animationController;
+    private List<string> holdingStates = new List<string>() {
+        "BallHeldLeft",
+        "BallHeldRight"
+    };
+    private MalletZone currentZone;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -34,6 +41,21 @@ public class BikeController : MonoBehaviour
         rb = GetComponent<Rigidbody>();
         
         mallet = gameObject.transform.Find("Mallet").gameObject.GetComponent<MalletController>();
+        animationController = GetComponent<Animator>();
+        setHoldingState("Normal");
+    }
+    private void setHoldingState(string in_param) {
+        // If the input parameter is not within the list, then
+        //    all parameters are set to false, resulting in the 
+        //    animator being set to the "normal" holding state
+        foreach (string key in holdingStates) {
+            if (key == in_param) {
+                animationController.SetBool(key, true);
+            }
+            else {
+                animationController.SetBool(key, false);
+            }
+        }
 
         Debug.Log("UpKey/W or Right Trigger on controller to Move forward/Accelerate");
         Debug.Log("DownKey/S or Left Trigger on controller to Slow down/Break");
@@ -121,6 +143,20 @@ public class BikeController : MonoBehaviour
 
         rb.MoveRotation(rb.rotation * turn);
         rb.MovePosition(rb.position + (transform.forward * speed * Time.fixedDeltaTime));
+    }
+    private void updateHoldingState() {
+        currentZone = mallet.currentZone;
+        switch (currentZone?.name) {
+            case "RightZone":
+                setHoldingState("BallHeldRight");
+                break;
+            case "LeftZone":
+                setHoldingState("BallHeldLeft");
+                break;
+            default:
+                setHoldingState("Normal");
+                break;
+        }
     }
 
     void FixedUpdate()
