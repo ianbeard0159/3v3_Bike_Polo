@@ -23,12 +23,9 @@ public class BikeController : MonoBehaviour
 
     //Used just to set current velocity of Mallet:
     MalletController mallet;
-    public Vector3 currentVel; 
+    private Vector3 currentVel;
 
-    public float currentBalance; //Based on some equation of speed, maybe turning status, and maybe button presses??
-
-    public bool useRB = true; //for testing purposes
-    public bool useTranslate = false; //for testing purposes, changes the movement system to using transfrom.Translate()
+    public float currentBalance = 100; //Based on some equation of speed, maybe turning status, and maybe button presses??
 
     private Animator animationController;
     private List<string> holdingStates = new List<string>() {
@@ -42,6 +39,7 @@ public class BikeController : MonoBehaviour
     {
         t = GetComponent<Transform>();
         rb = GetComponent<Rigidbody>();
+        
         mallet = gameObject.transform.Find("Mallet").gameObject.GetComponent<MalletController>();
         animationController = GetComponent<Animator>();
         setHoldingState("Normal");
@@ -58,12 +56,16 @@ public class BikeController : MonoBehaviour
                 animationController.SetBool(key, false);
             }
         }
+
+        Debug.Log("UpKey/W or Right Trigger on controller to Move forward/Accelerate");
+        Debug.Log("DownKey/S or Left Trigger on controller to Slow down/Break");
+        Debug.Log("Left/Right Key, A/D or Tilt Left Stick Left/Right on controller to Turn");
     }
 
-    private Vector3 getInputDirection()
+    private Vector3 GetInputDirection()
     {
-        float x = Input.GetAxis("Horizontal"); //UpKey, W, or Forward on left joystick
-        float z = Input.GetAxis("Vertical"); //DownKey, S, or Back on left joystick
+        float x = Input.GetAxis("Turn"); //Left/Right keys, A/D keys, or Left joystick on controller
+        float z = Input.GetAxis("Drive"); //Down/Up, S/W or Left/Right trigger on controller
         Vector3 direction = new Vector3(x, 0, z);
         return direction;
     }
@@ -78,11 +80,24 @@ public class BikeController : MonoBehaviour
         }
     }
 
+    public void CalculateBalance()
+    {
+        if(speed >= maxSpeed / 2)
+        {
+            currentBalance--;
+        }
+
+        if(speed < maxSpeed / 2)
+        {
+            currentBalance++;
+        }
+    }
+
     //Calculates and sets what the current speed is
-    public void calculateSpeed(float zInput)
+    public void CalculateSpeed(float zInput)
     {
         //Press up or down?
-        if (zInput > 0 && speed < maxSpeed) //Speeding up with up key 
+        if (zInput > 0 && speed < maxSpeed) //Speeding up with up key up right trigger
         {
             if (speed < maxSpeed) //Speed is less than max speed, speed up
             {
@@ -93,7 +108,7 @@ public class BikeController : MonoBehaviour
                 speed = maxSpeed; //No speeding up, already Too fast
             }
         }
-        if (zInput < 0) //Slowing down with down key, maybe add reverse here
+        if (zInput < 0) //Slowing down with down key or right trigger, maybe add reverse here
         {
             if (speed > minSpeed) //Speed is more than the min speed, slow down
             {
@@ -122,14 +137,6 @@ public class BikeController : MonoBehaviour
 
     }
 
-    public void TranslateMove(Vector3 direction)
-    {
-        //calculateSpeed(inputDir.z);
-        //turnSpeed = (speed * speed) * turnSpeedModifer + 20;
-        t.Rotate(new Vector3(0, direction.x * Time.deltaTime * turnSpeed, 0));
-
-        transform.Translate(Vector3.forward * speed * Time.deltaTime);
-    }
     public void MovePositioRB(Vector3 direction)
     {
         Quaternion turn = Quaternion.Euler(0, inputDir.x * Time.fixedDeltaTime * turnSpeed, 0);
@@ -154,39 +161,14 @@ public class BikeController : MonoBehaviour
 
     void FixedUpdate()
     {
-        if (currentZone != mallet.currentZone) {
-            updateHoldingState();
-        }
-        if (rb == null)
-        {
-            return;
-        }
-        if (useRB)
-        {
-            MovePositioRB(inputDir); //Move based on input direction
-        }
+        MovePositioRB(inputDir); //Move based on input direction
     }
 
     // Update is called once per frame
     void Update()
     {
-        inputDir = getInputDirection();
-
-        calculateSpeed(inputDir.z);
-        //currentBalance = 4.5f * speed - 90;
-
-        if (useTranslate)
-        {
-            useRB = false;
-        }
-        if (useRB)
-        {
-            useTranslate = false;
-        }
-           
-        if (useTranslate)
-        {
-            TranslateMove(inputDir);
-        }
+        inputDir = GetInputDirection();
+        CalculateSpeed(inputDir.z);
+        CalculateBalance();
     }
 }
