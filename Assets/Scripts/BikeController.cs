@@ -33,6 +33,7 @@ public class BikeController : MonoBehaviour
         "BallHeldRight"
     };
     private MalletZone currentZone;
+    private Transform followTarget;
 
     // Start is called before the first frame update
     void Start()
@@ -43,6 +44,7 @@ public class BikeController : MonoBehaviour
         mallet = gameObject.transform.Find("Mallet").gameObject.GetComponent<MalletController>();
         animationController = GetComponent<Animator>();
         setHoldingState("Normal");
+        followTarget = gameObject.transform.Find("Follow Target").transform;
     }
     private void setHoldingState(string in_param) {
         // If the input parameter is not within the list, then
@@ -147,6 +149,12 @@ public class BikeController : MonoBehaviour
         rb.MovePosition(rb.position + (transform.forward * speed * Time.fixedDeltaTime));
     }
     private void updateHoldingState() {
+        // Only change the camera if the ball is 
+        //    actually being held
+        if (!mallet.holdingBall) {
+            setHoldingState("Normal");
+            return;
+        }
         currentZone = mallet.currentZone;
         switch (currentZone?.name) {
             case "RightZone":
@@ -175,9 +183,14 @@ public class BikeController : MonoBehaviour
     {
         MovePositioRB(inputDir); //Move based on input direction
 
-        if (currentZone != mallet.currentZone) {
-            updateHoldingState();
+        if (mallet.holdingBall) {
+            followTarget.position = mallet.currentZone.holdSpot + mallet.aimDirection * mallet.aimLineLength;
         }
+        else {
+            followTarget.position = gameObject.transform.position;
+        }
+
+        updateHoldingState();
     }
 
     // Update is called once per frame

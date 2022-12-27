@@ -31,6 +31,10 @@ public class MalletController : MonoBehaviour
     LineRenderer aimLine;
 
     public bool useController = true;
+    private Vector3 aimVelocity = Vector3.zero;
+    public float minShotAngle = 10f;
+    public float maxShotAngle = 70f;
+    public float aimSmoothTime = 0.15f;
 
 
     void Start()
@@ -159,28 +163,26 @@ public class MalletController : MonoBehaviour
 
         if (holdingBall)
         {
+            Vector3 outDirection = Vector3.zero;
             if (useController) //Aiming is specific to controller, change in inspector/UI
             {
                 float horizontalAim = Input.GetAxis("AimHorizontal");
                 float verticalAim = Input.GetAxis("AimVertical");
-                aimDirection = new Vector3(Input.GetAxis("AimHorizontal"), 0, Input.GetAxis("AimVertical"));
+                outDirection = new Vector3(Input.GetAxis("AimHorizontal"), 0, Input.GetAxis("AimVertical"));
 
                 if (horizontalAim != 0 || verticalAim != 0)
                 {
 
                     if (horizontalAim != 0)
                     {
-                        aimDirection.x = horizontalAim;
+                        outDirection.x = horizontalAim;
                     }
 
                     if (verticalAim != 0)
                     {
-                        aimDirection.z = verticalAim;
+                        outDirection.z = verticalAim;
                     }
 
-                    //Rotate the current aim inputs to match the forward of the Player
-                    Quaternion rotation = Quaternion.LookRotation(transform.forward, Vector3.up);
-                    aimDirection = (rotation * aimDirection).normalized;
                     //DrawAimLine(aimDirection, Color.white);
                     //aimDirection = rotatedAimDirection.normalized;
                 }
@@ -190,12 +192,30 @@ public class MalletController : MonoBehaviour
                 //Get the center of the screen, the position of the mouse
                 //Calculate that direction, and then rotate it to match Player
                 Vector3 screenCenter = new Vector3(Screen.width / 2, Screen.height / 2, 0);
-                Vector3 mouseDirectionFromCenter = (Input.mousePosition - screenCenter).normalized;
-                mouseDirectionFromCenter.z = mouseDirectionFromCenter.y;
-                mouseDirectionFromCenter.y = 0;
-                Quaternion rotation = Quaternion.LookRotation(transform.forward, Vector3.up);
-                aimDirection = (rotation * mouseDirectionFromCenter).normalized;
+                outDirection = (Input.mousePosition - screenCenter).normalized;
+                outDirection.z = outDirection.y / 2;
+                outDirection.y = 0;
             }
+            //Rotate the current aim inputs to match the forward of the Player
+            Quaternion rotation = Quaternion.LookRotation(outDirection, Vector3.up);
+            Vector3 eulerRotation = rotation.eulerAngles;
+            float yRotation = eulerRotation.y;
+            if (yRotation > 180) {
+                yRotation = -360 + yRotation;
+            }
+            if (currentZone.name == "RightZone") {
+                yRotation = Mathf.Clamp(yRotation, minShotAngle, maxShotAngle);
+            }
+            else {
+                yRotation = Mathf.Clamp(yRotation, -maxShotAngle, -minShotAngle);
+            }
+            eulerRotation.y = yRotation;
+            Debug.Log(eulerRotation.y);
+            //yRotation = Mathf.Clamp(yRotation, 0 + 360, 90 + 360);
+            Quaternion clampedRotation = Quaternion.Euler(eulerRotation);
+
+            aimDirection = Vector3.SmoothDamp(aimDirection, (clampedRotation * transform.forward).normalized, ref aimVelocity, aimSmoothTime);
+
             DrawAimLine(aimDirection);
         }
         if (!holdingBall || aimDirection == Vector3.zero)
