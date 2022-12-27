@@ -60,6 +60,8 @@ public class BikeController : MonoBehaviour
 
     public void CalculateBalance()
     {
+        Mathf.Clamp(currentBalance, 0, 100);
+
         if(speed >= maxSpeed / 2)
         {
             currentBalance--;
@@ -123,16 +125,29 @@ public class BikeController : MonoBehaviour
         rb.MovePosition(rb.position + (transform.forward * speed * Time.fixedDeltaTime));
     }
 
+    public void Dash()
+    {
+
+    }
+
+    public void GetButtonInputs()
+    {
+
+    }
+
     void FixedUpdate()
     {
         MovePositioRB(inputDir); //Move based on input direction
+
     }
 
     // Update is called once per frame
     void Update()
     {
+        //Debug.DrawRay(transform.position, transform.forward * 30, Color.blue, 1);
         inputDir = GetInputDirection();
         CalculateSpeed(inputDir.z);
         CalculateBalance();
+        GetButtonInputs();
     }
 }
