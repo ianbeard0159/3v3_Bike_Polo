@@ -49,8 +49,8 @@ public class MalletController : MonoBehaviour
         mainCam.m_XAxis.Value = 0;
 
         Debug.Log("Right click or press X on controller to switch sides");
-        Debug.Log("Left click/hold or press/hold A on controller to pick up Ball");
-        Debug.Log("Let go of LeftClick or A on controller to Shoot Ball while holding it");
+        Debug.Log("Left click/hold or press/hold Left Bumper on controller to pick up Ball");
+        Debug.Log("Click LeftClick or Left Bumper on controller to Shoot Ball while holding it");
     }
 
     public void DrawAimLine(Vector3 direction, Color color)
@@ -162,9 +162,9 @@ public class MalletController : MonoBehaviour
         {
             if (holdingBall) //Holding the ball, Shoot!
             {
-                if (rotatedAimDirection != Vector3.zero) //We're aiming, shoot ball in that direction
+                if (aimDirection != Vector3.zero) //We're aiming, shoot ball in that direction
                 {
-                    ShootBall(rotatedAimDirection);
+                    ShootBall(aimDirection);
                 }
                 else
                     QuickShoot(); //Not aiming, just do defualt quick shot
@@ -184,26 +184,6 @@ public class MalletController : MonoBehaviour
             }
         }
 
-        //if (Input.GetButtonUp("Hold/Shoot")) //Let go of A/LeftClick
-        //{
-        //    if (holdingBall) //If you were holding the ball, 
-        //    {
-        //        Debug.Log(Camera.main.transform.rotation * Vector3.forward);
-        //        //shootBall(Camera.main.transform.rotation * Vector3.forward); //we can shoot it
-        //        shootBall(aimDirection);
-        //    }
-
-        //    turnOnOffZones(false); //Turn off zones whether we were shooting or not
-        //}
-
-
-
-        //if (verticalAim != 0)
-        //{
-        //    aimDirection.y = verticalAim;
-        //    Debug.Log("Vertical aim input: " + verticalAim);
-        //}
-
         if (holdingBall)
         {
             if (useController) //Aiming is specific to controller, change in inspector/UI
@@ -218,38 +198,37 @@ public class MalletController : MonoBehaviour
                     if (horizontalAim != 0)
                     {
                         aimDirection.x = horizontalAim;
-                        //Debug.Log("aim z is: " + aimDirection.z);
-                        //Debug.Log("Horizontal aim input: " + horizontalAim);
                     }
 
                     if (verticalAim != 0)
                     {
                         aimDirection.z = verticalAim;
-                        //Debug.Log("aim x is: " + aimDirection.x);
-                        //Debug.Log("Horizontal aim input: " + horizontalAim);
                     }
 
                     //Rotate the current aim inputs to match the forward of the Player
                     Quaternion rotation = Quaternion.LookRotation(transform.forward, Vector3.up);
                     rotatedAimDirection = (rotation * aimDirection).normalized;
-                    //DrawAimLine(aimDirection, Color.blue);
-                    DrawAimLine(rotatedAimDirection, Color.white);
+                    aimDirection = rotatedAimDirection;
+                    //DrawAimLine(aimDirection, Color.white);
                     //aimDirection = rotatedAimDirection.normalized;
                 }
             }
             else if (!useController)
             {
+                //Get the center of the screen, the position of the mouse
+                //Calculate that direction, and then rotate it to match Player
                 Vector3 screenCenter = new Vector3(Screen.width / 2, Screen.height / 2, 0);
                 Vector3 mouseDirectionFromCenter = (Input.mousePosition - screenCenter).normalized;
                 mouseDirectionFromCenter.z = mouseDirectionFromCenter.y;
                 mouseDirectionFromCenter.y = 0;
                 Quaternion rotation = Quaternion.LookRotation(transform.forward, Vector3.up);
                 Vector3 rotatedMouseAimDir = (rotation * mouseDirectionFromCenter).normalized;
-                rotatedAimDirection = rotatedMouseAimDir;
-                DrawAimLine(rotatedAimDirection, Color.white);
+                aimDirection = rotatedMouseAimDir;
+                //DrawAimLine(aimDirection, Color.white);
             }
+            DrawAimLine(aimDirection, Color.white);
         }
-        if(!holdingBall || aimDirection == Vector3.zero)
+        if (!holdingBall || aimDirection == Vector3.zero)
         {
             aimLine.enabled = false;
             aimLine.positionCount = 0;
