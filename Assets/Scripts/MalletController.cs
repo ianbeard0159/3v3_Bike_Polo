@@ -40,9 +40,9 @@ public class MalletController : MonoBehaviour
         malletLeftZone = gameObject.transform.GetChild(1).gameObject.GetComponent<MalletZone>();
         aimLine = GetComponent<LineRenderer>();
 
-        Debug.Log("Right click or press X on controller to switch sides");
-        Debug.Log("Left click/hold or press/hold Left Bumper on controller to pick up Ball");
-        Debug.Log("Click LeftClick or Left Bumper on controller to Shoot Ball while holding it");
+        //Debug.Log("Right click or press X on controller to switch sides");
+        //Debug.Log("Left click/hold or press/hold Left Bumper on controller to pick up Ball");
+        //Debug.Log("Click LeftClick or Left Bumper on controller to Shoot Ball while holding it");
     }
 
     public void DrawAimLine(Vector3 direction)
