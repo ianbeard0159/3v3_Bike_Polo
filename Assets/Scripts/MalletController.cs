@@ -30,7 +30,7 @@ public class MalletController : MonoBehaviour
     public MalletController currentStealablePlayer;
 
     public Vector3 aimDirection;
-    public Vector3 rotatedAimDirection;
+   // public Vector3 rotatedAimDirection;
     LineRenderer aimLine;
 
     public bool useController = true;
@@ -41,7 +41,7 @@ public class MalletController : MonoBehaviour
         ballInZone = false;
         malletRightZone = gameObject.transform.GetChild(0).gameObject.GetComponent<MalletZone>();
         malletLeftZone = gameObject.transform.GetChild(1).gameObject.GetComponent<MalletZone>();
-        aimLine = gameObject.transform.GetChild(2).gameObject.GetComponent<LineRenderer>();
+        aimLine = GetComponent<LineRenderer>();
 
         mainCam.Priority = 10;
         leftCam.Priority = 0;
@@ -53,13 +53,11 @@ public class MalletController : MonoBehaviour
         Debug.Log("Click LeftClick or Left Bumper on controller to Shoot Ball while holding it");
     }
 
-    public void DrawAimLine(Vector3 direction, Color color)
+    public void DrawAimLine(Vector3 direction)
     {
         if(holdingBall) //Only aim when we are holding the ball and could theoretically shoot
         {
             aimLine.enabled = true;
-            aimLine.startColor = color;
-            aimLine.endColor = color;
             aimLine.positionCount = 2;
 
             Vector3 shootEndPoint = currentZone.holdSpot + (direction * aimLineLength);
@@ -68,26 +66,10 @@ public class MalletController : MonoBehaviour
         }
     }
 
-    //Disables the trigger colliders of its zones when passed false, enables them when passed on
-    //Also makes sure that ballInZone gets turned false when turning off Zones
-    public void turnOnOffZones(bool onOff)
-    {
-        //malletLeftZone.turnOffZone(onOff);
-        //malletRightZone.turnOffZone(onOff);
-
-        //Debug.Log(onOff);
-
-        //if(onOff == false)
-        //    ballInZone = false;
-    }
-
     //Shoots the ball in a direction
-    //TODO pass a direction from inputs instead of just transform.forward
     public void ShootBall(Vector3 direction)
     {
-        
-        //Debug.Log("Shooting direction: " + direction);
-        ballRB.isKinematic = false; //Male sure the ball isnt kinematic anymore so we shoot it with force
+        ballRB.isKinematic = false; //Make sure the ball isnt kinematic anymore so we shoot it with force
         direction.y = shootUpForce;
         ballRB.AddForce(currVel + (shootForce * direction));
 
@@ -207,8 +189,7 @@ public class MalletController : MonoBehaviour
 
                     //Rotate the current aim inputs to match the forward of the Player
                     Quaternion rotation = Quaternion.LookRotation(transform.forward, Vector3.up);
-                    rotatedAimDirection = (rotation * aimDirection).normalized;
-                    aimDirection = rotatedAimDirection;
+                    aimDirection = (rotation * aimDirection).normalized;
                     //DrawAimLine(aimDirection, Color.white);
                     //aimDirection = rotatedAimDirection.normalized;
                 }
@@ -222,11 +203,9 @@ public class MalletController : MonoBehaviour
                 mouseDirectionFromCenter.z = mouseDirectionFromCenter.y;
                 mouseDirectionFromCenter.y = 0;
                 Quaternion rotation = Quaternion.LookRotation(transform.forward, Vector3.up);
-                Vector3 rotatedMouseAimDir = (rotation * mouseDirectionFromCenter).normalized;
-                aimDirection = rotatedMouseAimDir;
-                //DrawAimLine(aimDirection, Color.white);
+                aimDirection = (rotation * mouseDirectionFromCenter).normalized;
             }
-            DrawAimLine(aimDirection, Color.white);
+            DrawAimLine(aimDirection);
         }
         if (!holdingBall || aimDirection == Vector3.zero)
         {
@@ -240,25 +219,9 @@ public class MalletController : MonoBehaviour
     {
         getMalletInputs();
 
-        if(holdingBall)
+        if (holdingBall)
         {
             HoldBall();
-        }
-
-        if (currentZone == null) {
-            mainCam.Priority = 10;
-            leftCam.Priority = 0;
-            rightCam.Priority = 0;
-        }
-        else if (currentZone.name == "RightZone") {
-            mainCam.Priority = 0;
-            leftCam.Priority = 0;
-            rightCam.Priority = 10;
-        }
-        else if (currentZone.name == "LeftZone") {
-            mainCam.Priority = 0;
-            leftCam.Priority = 10;
-            rightCam.Priority = 0;
         }
     }
 }

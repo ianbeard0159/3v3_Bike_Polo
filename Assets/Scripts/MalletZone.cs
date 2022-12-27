@@ -28,19 +28,6 @@ public class MalletZone : MonoBehaviour
         playerInZone = false;
     }
 
-    //Turns on or off this Zones collider and
-    //Also makes sure that ballInZone gets turned false when turning off Zones
-    public void turnOffZone(bool onOff)
-    {
-        //zone.enabled = onOff;
-        //Debug.Log(this.name + " zone is " + onOff);
-        //if (onOff == false)
-        //{
-        //    ballInZone = false;
-        //    playerInZone = false;
-        //}  
-    }
-
     private void OnTriggerExit(Collider other)
     {
         if (other.tag == "Ball")
@@ -48,8 +35,6 @@ public class MalletZone : MonoBehaviour
             mallet.ballInZone = false;
             ballInZone = false; //Make sure MalletController knows the ball is within reach and
             mallet.currentZone = null; //which zone side the ball is currently in reach of
-            
-           // mallet.ballRB = other.attachedRigidbody; //Grab the RB information of the ball to give to MalletController
         }
 
     }
