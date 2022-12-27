@@ -10,6 +10,9 @@ public class BikeController : MonoBehaviour
 
     //All these values can be tweaked to change the feel of the movement
     [SerializeField] public float speed = 0;
+    [SerializeField] public float dashingSpeedModifier = 2.5f; //The modifer that sets the Dash speed based on maxSpeed*dashSpeedMod
+    [SerializeField] private float dashDuration = .5f; //how long the dash lasts in seconds
+    [SerializeField] private float dashCooldown = 5; //how long the cooldown is between dashes
     [SerializeField] private float maxSpeed = 20;
     [SerializeField] private float minSpeed = 0;
     [SerializeField] private float acceleration = .06f; //How quickly spped max speed when speeding up
@@ -21,11 +24,17 @@ public class BikeController : MonoBehaviour
 
     [SerializeField] private float pushForce = 40f; //How much force is applied to the ball if its pushed by the Bike
 
+    public bool isDashing;
+
     //Used just to set current velocity of Mallet:
     MalletController mallet;
     private Vector3 currentVel;
 
     public float currentBalance = 100; //Based on some equation of speed, maybe turning status, and maybe button presses??
+
+    //Helper timers
+    Timer dashDurationTimer;
+    Timer dashCooldownTimer;
 
     private Animator animationController;
     private List<string> holdingStates = new List<string>() {
@@ -40,11 +49,21 @@ public class BikeController : MonoBehaviour
     {
         t = GetComponent<Transform>();
         rb = GetComponent<Rigidbody>();
-        
+
+        isDashing = false;
+
+        dashDurationTimer = new Timer();
+        dashCooldownTimer = new Timer();
+
         mallet = gameObject.transform.Find("Mallet").gameObject.GetComponent<MalletController>();
         animationController = GetComponent<Animator>();
         setHoldingState("Normal");
         followTarget = gameObject.transform.Find("Follow Target").transform;
+
+        Debug.Log("Keyboard/Mouse: Dash on Shift, Hold/Shoot on Left Click, Switch Sides on Right Click");
+        Debug.Log("Keyboard/Mouse: WASD to Drive/Turn.");
+        Debug.Log("(Xbox) Controller: Triggers to Drive, Left Stick to Turn");
+        Debug.Log("(Xbox) Controller: Dash on X, Hold/Shoot on Left Bumper, Switch Sides on X (holding ball");
     }
     private void setHoldingState(string in_param) {
         // If the input parameter is not within the list, then
@@ -58,17 +77,20 @@ public class BikeController : MonoBehaviour
                 animationController.SetBool(key, false);
             }
         }
-
-        Debug.Log("UpKey/W or Right Trigger on controller to Move forward/Accelerate");
-        Debug.Log("DownKey/S or Left Trigger on controller to Slow down/Break");
-        Debug.Log("Left/Right Key, A/D or Tilt Left Stick Left/Right on controller to Turn");
     }
 
     private Vector3 GetInputDirection()
     {
-        float x = Input.GetAxis("Turn"); //Left/Right keys, A/D keys, or Left joystick on controller
-        float z = Input.GetAxis("Drive"); //Down/Up, S/W or Left/Right trigger on controller
-        Vector3 direction = new Vector3(x, 0, z);
+        float turnAmount = 0;
+        float driveAmount = 0;
+
+        if (!isDashing)
+        {
+            turnAmount = Input.GetAxis("Turn"); //Left/Right keys, A/D keys, or Left joystick on controller
+            driveAmount = Input.GetAxis("Drive"); //Down/Up, S/W or Left/Right trigger on controller
+        }
+
+        Vector3 direction = new Vector3(turnAmount, 0, driveAmount);
         return direction;
     }
 
@@ -81,25 +103,51 @@ public class BikeController : MonoBehaviour
             collision.rigidbody.AddForce(pushForce * direction);
         }
     }
+    private void OnCollisionStay(Collision collision)
+    {
+        if (collision.gameObject.tag == "Wall")
+        {
 
+            //If we're dashing and touch a wall, we have to stop dashing. Temporary cuz of bugs where the bike would dash through walls
+            if (isDashing)
+            {
+                //Debug.Log("Hit a wall, no dash for you");
+                isDashing = false;
+                dashCooldownTimer.StartTimerForSeconds(dashDuration);
+            }
+        }
+    }
+
+    //TODO
     public void CalculateBalance()
     {
-        Mathf.Clamp(currentBalance, 0, 100);
+        //Mathf.Clamp(currentBalance, 0, 100);
 
-        if(speed >= maxSpeed / 2)
-        {
-            currentBalance--;
-        }
+        //if(speed >= maxSpeed / 2)
+        //    {
+        //        currentBalance--;
+        //    }
 
-        if(speed < maxSpeed / 2)
-        {
-            currentBalance++;
-        }
+        //if(speed < maxSpeed / 2)
+        //    {
+        //        currentBalance++;
+        //    }
     }
 
     //Calculates and sets what the current speed is
     public void CalculateSpeed(float zInput)
     {
+        if (isDashing)
+        {
+            //speed = dashingSpeed;
+            return;
+        }
+
+        if(speed > maxSpeed)
+        {
+            speed = maxSpeed;
+        }
+
         //Press up or down?
         if (zInput > 0 && speed < maxSpeed) //Speeding up with up key up right trigger
         {
@@ -169,14 +217,26 @@ public class BikeController : MonoBehaviour
         }
     }
 
+    //Dash that has a cooldown, locks you into direction, and lasts for a determined number of seconds
+    //Cant dash while holding ball, cant dash while going too slow
     public void Dash()
     {
-
+        dashDurationTimer.StartTimerForSeconds(dashDuration);
+        isDashing = true;
+        speed = dashingSpeedModifier * maxSpeed;
     }
 
     public void GetButtonInputs()
     {
-
+        //Check for input,
+        //check to make sure we're not already dashing,
+        //check that we're not holding ball,
+        //check that the dash is off Cooldown
+        //check to see Player is going a reasonable speed (not stopped/slow) before we can dash
+        if (Input.GetButtonDown("Dash") && !isDashing && !mallet.holdingBall && dashCooldownTimer.checkTime() && speed >= (maxSpeed / 2))
+        {
+                Dash();
+        }
     }
 
     void FixedUpdate()
@@ -196,7 +256,19 @@ public class BikeController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        //Debug.DrawRay(transform.position, transform.forward * 30, Color.blue, 1);
+        //Dashing into range of ball makes Player auto pick up the ball without inputs
+        if (isDashing && mallet.ballInZone)
+        {
+            mallet.HoldBall(); 
+        }
+
+        //Cooldown handling
+        if (isDashing && dashDurationTimer.checkTime())
+        {
+            isDashing = false;
+            dashCooldownTimer.StartTimerForSeconds(dashCooldown);
+        }
+
         inputDir = GetInputDirection();
         CalculateSpeed(inputDir.z);
         CalculateBalance();
