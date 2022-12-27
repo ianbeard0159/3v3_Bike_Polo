@@ -30,12 +30,34 @@ public class BikeController : MonoBehaviour
     public bool useRB = true; //for testing purposes
     public bool useTranslate = false; //for testing purposes, changes the movement system to using transfrom.Translate()
 
+    private Animator animationController;
+    private List<string> holdingStates = new List<string>() {
+        "BallHeldLeft",
+        "BallHeldRight"
+    };
+    private MalletZone currentZone;
+
     // Start is called before the first frame update
     void Start()
     {
         t = GetComponent<Transform>();
         rb = GetComponent<Rigidbody>();
         mallet = gameObject.transform.Find("Mallet").gameObject.GetComponent<MalletController>();
+        animationController = GetComponent<Animator>();
+        setHoldingState("Normal");
+    }
+    private void setHoldingState(string in_param) {
+        // If the input parameter is not within the list, then
+        //    all parameters are set to false, resulting in the 
+        //    animator being set to the "normal" holding state
+        foreach (string key in holdingStates) {
+            if (key == in_param) {
+                animationController.SetBool(key, true);
+            }
+            else {
+                animationController.SetBool(key, false);
+            }
+        }
     }
 
     private Vector3 getInputDirection()
@@ -115,9 +137,26 @@ public class BikeController : MonoBehaviour
         rb.MoveRotation(rb.rotation * turn);
         rb.MovePosition(rb.position + (transform.forward * speed * Time.fixedDeltaTime));
     }
+    private void updateHoldingState() {
+        currentZone = mallet.currentZone;
+        switch (currentZone?.name) {
+            case "RightZone":
+                setHoldingState("BallHeldRight");
+                break;
+            case "LeftZone":
+                setHoldingState("BallHeldLeft");
+                break;
+            default:
+                setHoldingState("Normal");
+                break;
+        }
+    }
 
     void FixedUpdate()
     {
+        if (currentZone != mallet.currentZone) {
+            updateHoldingState();
+        }
         if (rb == null)
         {
             return;
