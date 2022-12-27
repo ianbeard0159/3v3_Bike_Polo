@@ -11,7 +11,7 @@ public class MalletController : MonoBehaviour
 
     public Rigidbody ballRB;
     public float shootForce;    //The force that is applied to the ball when shooting with the mallet
-    public float shootUpForce = 5;
+    public float shootUpForce = .15f;
     public float aimLineLength = 5;
 
     public bool holdingBall;    //Is tje ball currently being held in the mallets hold position?
@@ -65,7 +65,7 @@ public class MalletController : MonoBehaviour
         direction.y = shootUpForce;
         ballRB.AddForce(currVel + (shootForce * direction));
 
-        Debug.DrawRay(currentZone.holdSpot, direction * shootForce, Color.red, 40);
+        //Debug.DrawRay(currentZone.holdSpot, direction * shootForce, Color.red, 40);
 
         //shootVector = direction * shootForce;
 
