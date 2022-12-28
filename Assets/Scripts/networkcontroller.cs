@@ -21,7 +21,7 @@ public class networkcontroller : MonoBehaviour
     private string uuid;
 
 
-    // Warning : this commented function is cursed and will haunt your frametime
+    // Warning : this commented function is cursed and will haunt you
     // async in C# sure is really dumb
 
     //void wait(IEnumerator coro){
@@ -245,6 +245,8 @@ public class networkcontroller : MonoBehaviour
 
         if(host){
 
+            Debug.Log($"Starting at {server+gameid} ...");
+
             gameid = System.Guid.NewGuid().ToString();
 
             yield return create();
@@ -252,6 +254,8 @@ public class networkcontroller : MonoBehaviour
             Debug.Log($"Started at {server+gameid}");
 
         }else{
+
+            Debug.Log($"connecting at {server+gameid} ...");
 
             // someone good at unity please do something
             // somehow get the user's input into `gameid`, temporarily uses the [SerializeField]
