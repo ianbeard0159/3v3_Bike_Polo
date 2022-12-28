@@ -121,7 +121,7 @@ MonoBehaviour:
   aimDirection: {x: 0, y: 0, z: 0}
   useController: 0
   minShotAngle: 10
-  maxShotAngle: 70
+  maxShotAngle: 180
   aimSmoothTime: 0.15
 --- !u!120 &8909945342808733631
 LineRenderer:
@@ -298,7 +298,7 @@ BoxCollider:
   m_IsTrigger: 1
   m_Enabled: 1
   serializedVersion: 2
-  m_Size: {x: 3, y: 1, z: 8}
+  m_Size: {x: 3, y: 2, z: 8}
   m_Center: {x: 0.44, y: 0, z: 1}
 --- !u!114 &8909945343773700108
 MonoBehaviour:
@@ -370,7 +370,7 @@ MonoBehaviour:
   dashDuration: 0.75
   dashCooldown: 5
   maxSpeed: 20
-  minSpeed: 0
+  minSpeed: -5
   acceleration: 0.06
   deceleration: 0.04
   turnSpeedModifer: 0.4
@@ -472,7 +472,7 @@ BoxCollider:
   m_IsTrigger: 1
   m_Enabled: 1
   serializedVersion: 2
-  m_Size: {x: 3, y: 1, z: 8}
+  m_Size: {x: 3, y: 2, z: 8}
   m_Center: {x: -0.69, y: 0, z: 1}
 --- !u!114 &8909945344142402249
 MonoBehaviour:
