@@ -8,6 +8,10 @@ using UnityEngine;
 public class MalletZone : MonoBehaviour
 {
     public MalletController mallet;
+
+    public bool ballInZone;
+    public bool playerInZone;
+
     Collider zone;
 
     public Vector3 holdSpot    //The position of this Zones "hold spot/pocket"
@@ -20,30 +24,30 @@ public class MalletZone : MonoBehaviour
     {
         mallet = gameObject.GetComponentInParent<MalletController>();
         zone = GetComponent<Collider>();
-        //holdSpot = gameObject.transform.GetChild(0).transform.position;
+        //zone.enabled = false;
+        playerInZone = false;
     }
 
-    public void turnOffZone(bool onOff)
+    private void OnTriggerExit(Collider other)
     {
-        zone.enabled = onOff;
-    }
-
-    private void OnTriggerEnter(Collider other)
-    {
-        if(other.tag == "Ball")
+        if (other.tag == "Ball")
         {
-            mallet.ballInZone = true; //Make sure MalletController knows the ball is within reach and
+            mallet.ballInZone = false;
+            ballInZone = false; //Make sure MalletController knows the ball is within reach and
+            mallet.currentZone = null; //which zone side the ball is currently in reach of
+        }
+
+    }
+
+    private void OnTriggerStay(Collider other)
+    {
+        if (other.tag == "Ball")
+        {
+            mallet.ballInZone = true;
+            ballInZone = true; //Make sure MalletController knows the ball is within reach and
             mallet.currentZone = this; //which zone side the ball is currently in reach of
             mallet.ballRB = other.attachedRigidbody; //Grab the RB information of the ball to give to MalletController
         }
     }
-
-    //private void OnTriggerStay(Collider other)
-    //{
-    //    if (other.tag == "Ball")
-    //        mallet.ballInZone = true;
-
-    //}
-
-
 }
+
