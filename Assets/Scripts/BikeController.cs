@@ -43,6 +43,7 @@ public class BikeController : MonoBehaviour
     };
     private MalletZone currentZone;
     private Transform followTarget;
+    private Vector3 lastFollowTargetPos = Vector3.zero;
 
     // Start is called before the first frame update
     void Start()
@@ -244,10 +245,10 @@ public class BikeController : MonoBehaviour
         MovePositioRB(inputDir); //Move based on input direction
 
         if (mallet.holdingBall) {
-            followTarget.position = mallet.currentZone.holdSpot + mallet.aimDirection * mallet.aimLineLength;
+            lastFollowTargetPos = mallet.aimDirection * mallet.aimLineLength;
         }
-        else {
-            followTarget.position = gameObject.transform.position;
+        if (mallet.currentZone != null) {
+            followTarget.position = mallet.currentZone.holdSpot + lastFollowTargetPos;
         }
 
         updateHoldingState();

@@ -210,7 +210,6 @@ public class MalletController : MonoBehaviour
                 yRotation = Mathf.Clamp(yRotation, -maxShotAngle, -minShotAngle);
             }
             eulerRotation.y = yRotation;
-            Debug.Log(eulerRotation.y);
             //yRotation = Mathf.Clamp(yRotation, 0 + 360, 90 + 360);
             Quaternion clampedRotation = Quaternion.Euler(eulerRotation);
 
