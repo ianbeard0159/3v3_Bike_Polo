@@ -245,9 +245,9 @@ public class networkcontroller : MonoBehaviour
 
         if(host){
 
-            Debug.Log($"Starting at {server+gameid} ...");
-
             gameid = System.Guid.NewGuid().ToString();
+
+            Debug.Log($"Starting at {server+gameid} ...");
 
             yield return create();
 
