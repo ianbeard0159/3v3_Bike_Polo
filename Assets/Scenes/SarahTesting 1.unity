@@ -279,6 +279,26 @@ Transform:
   m_Father: {fileID: 1044961326}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &283138114 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 828627803792443763, guid: 19b862c92347fb047a2ae9f92b20a50a, type: 3}
+  m_PrefabInstance: {fileID: 621151993}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &283138120
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 283138114}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 96a07aa1e4ca34fcabb8eb197ad8ee64, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  server: http://rtc.zyugyzarc.repl.co/
+  host: 1
+  gameid: 
 --- !u!1 &467809932
 GameObject:
   m_ObjectHideFlags: 3
