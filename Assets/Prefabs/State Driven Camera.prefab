@@ -2321,9 +2321,9 @@ MonoBehaviour:
   m_LayerIndex: 0
   m_ShowDebugText: 0
   m_ChildCameras:
-  - {fileID: 3663398041244256228}
-  - {fileID: 3663398041563475496}
-  - {fileID: 3663398040045436065}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   m_Instructions:
   - m_FullHash: 1806944874
     m_VirtualCamera: {fileID: 3663398041244256228}
@@ -2347,10 +2347,4 @@ MonoBehaviour:
       m_PostInfinity: 2
       m_RotationOrder: 4
   m_CustomBlends: {fileID: 0}
-  m_ParentHash:
-  - m_Hash: 1806944874
-    m_ParentHash: 756556552
-  - m_Hash: -1379772746
-    m_ParentHash: 756556552
-  - m_Hash: -713674890
-    m_ParentHash: 756556552
+  m_ParentHash: []
