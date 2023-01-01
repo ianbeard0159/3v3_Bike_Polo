@@ -97,11 +97,9 @@ public class BikeController : MonoBehaviour
         //    animator being set to the "normal" holding state
         foreach (string key in holdingStates) {
             if (key == in_param) {
-                //Debug.Log(key + " is valid, setting animation bool true");
                 animationController.SetBool(key, true);
             }
             else {
-                //Debug.Log(key + " is invalid, setting animation bool false");
                 animationController.SetBool(key, false);
             }
         }
@@ -236,6 +234,7 @@ public class BikeController : MonoBehaviour
             setHoldingState("Normal");
             return;
         }
+
         currentZone = mallet.currentZone;
         switch (currentZone?.name)
         {
@@ -280,7 +279,7 @@ public class BikeController : MonoBehaviour
         MovePositioRB(inputDir); //Move based on input direction
 
         if (mallet.holdingBall) {
-            lastFollowTargetPos = mallet.aimDirection * mallet.aimLineLength;
+            lastFollowTargetPos = mallet.aimDirection * mallet.currentLineLength;
         }
         if (mallet.currentZone != null) {
             followTarget.position = mallet.currentZone.holdSpot + lastFollowTargetPos;

@@ -16,15 +16,17 @@ public class MalletController : MonoBehaviour
 
     //For shooting the ball, tweakable values to change the feel
     public Vector3 currVel;     //Current velocity, set by BikeController
-    [SerializeField] private float shootForce = 200;   //The force that is applied to the ball when shooting with the mallet
+    [SerializeField] private float quickShotForce = 200;   //The force that is applied to the ball when shooting with the mallet
     [SerializeField] private float shootUpForce = .15f; //How much upwards force the ball receives when shot
 
     //For power shooting the ball
-    [SerializeField] public float aimLineLength = 5; //How long the aim line is from ball, also affects where the camera will look
     [SerializeField] private float powerShotMin = 200;
     [SerializeField] private float powerShotMax = 400;
-    [SerializeField] private float powerModifer = 1;
-    //private float currentShotPower;
+    [SerializeField] private float powerModifer = 1; //how much power intensifies each frame holding shoot button
+    public float currentShotPower;
+    public float currentLineLength; //How long the aim line is/corresponds with current shot power, also affects where the camera will look
+    [SerializeField] private float maxLineLength = 5; //length that goes with max shooting power
+    [SerializeField] private float minLineLength = 1; //for aiming purposes without needing to hold shoot button
 
     //For holding the ball with mallet
     public bool holdingBall;    //Is tje ball currently being held in the mallets hold position?
@@ -38,6 +40,9 @@ public class MalletController : MonoBehaviour
     //For Smoothing Aim
     public float aimSmoothTime = 0.15f;
     private Vector3 aimVelocity = Vector3.zero;
+
+    Timer holdCheckTimer;
+    bool donePressingButton = false;
 
     //Components and Stuff
     MalletZone malletLeftZone;        //Mallets area of reach on the left side
@@ -53,30 +58,32 @@ public class MalletController : MonoBehaviour
         malletLeftZone = gameObject.transform.GetChild(1).gameObject.GetComponent<MalletZone>();
         aimLine = GetComponent<LineRenderer>();
 
+        holdCheckTimer = new Timer();
+
         //Debug.Log("Right click or press X on controller to switch sides");
         //Debug.Log("Left click/hold or press/hold Left Bumper on controller to pick up Ball");
         //Debug.Log("Click LeftClick or Left Bumper on controller to Shoot Ball while holding it");
     }
 
-    public void DrawAimLine(Vector3 direction)
+    public void DrawAimLine(Vector3 direction, float lineLength)
     {
         if(holdingBall) //Only aim when we are holding the ball and could theoretically shoot
         {
             aimLine.enabled = true;
             aimLine.positionCount = 2;
 
-            Vector3 shootEndPoint = currentZone.holdSpot + (direction * aimLineLength);
+            Vector3 shootEndPoint = currentZone.holdSpot + (direction * lineLength);
             aimLine.SetPosition(0, currentZone.holdSpot);
             aimLine.SetPosition(1, shootEndPoint);
         }
     }
 
-    //Shoots the ball in a direction
+    //Shoots the ball in a direction at default power
     public void ShootBall(Vector3 direction)
     {
         ballRB.isKinematic = false; //Make sure the ball isnt kinematic anymore so we shoot it with force
         direction.y = shootUpForce;
-        ballRB.AddForce(currVel + (shootForce * direction));
+        ballRB.AddForce(currVel + (quickShotForce * direction));
 
         //Debug.DrawRay(currentZone.holdSpot, direction * shootForce, Color.red, 40);
 
@@ -85,13 +92,13 @@ public class MalletController : MonoBehaviour
         DropBall();
     }
 
+    //Shots ball in a direction and a specific power force
     public void PowerShot(Vector3 direction, float power)
     {
-        Debug.Log("power shooting!! Power: " + power);
-
         ballRB.isKinematic = false; //Make sure the ball isnt kinematic anymore so we shoot it with force
         direction.y = shootUpForce;
         ballRB.AddForce(currVel + (power * direction));
+        Debug.Log("shot at power level: " + currentShotPower);
         DropBall();
     }
 
@@ -148,86 +155,80 @@ public class MalletController : MonoBehaviour
     //Get inputs from player to control things related to "Mallet use" or manipulating the ball
     private void getMalletInputs()
     {
+        donePressingButton = holdCheckTimer.checkTime();
 
-        ////DOESNT WORK, 
-        ////INVESTIGATING INPUTS / POWER SHOOTING OPTIONS
-        //bool pressedLastFrame;
-        //if (holdingBall) //Controls for when Players are currently holding the ball
-        //{
-        //    if (Input.GetButtonDown("Hold/Shoot"))
-        //    {
-        //        pressedLastFrame = true;
-        //        Debug.Log("pressed the button this frame: " + pressedLastFrame);
-        //    }
-        //    else
-        //    {
-        //        pressedLastFrame = false;
-        //    }
-
-        //    if (!pressedLastFrame) //you didnt just begin to press the button
-        //    {
-        //        if (Input.GetButton("Hold/Shoot")) //holding ball, holding button this frame
-        //        {
-        //            Debug.Log("holding the button, gaining power... current power: " + currentShotPower);
-        //            currentShotPower = Mathf.Clamp(currentShotPower + powerModifer, powerShotMin, powerShotMax);
-        //        }
-        //        if (Input.GetButtonUp("Hold/Shoot")) //holding ball, released the button
-        //        {
-        //            Debug.Log("released the shoot button");
-
-        //            if (aimDirection == Vector3.zero)
-        //            {
-        //                Debug.Log("not aiming, quick shot");
-        //                ShootBall(transform.forward);
-        //            }
-        //            else
-        //            {
-        //                Debug.Log("released button, power shooting... current power: " + currentShotPower + " and current direction: " + aimDirection);
-        //                PowerShot(aimDirection, currentShotPower);
-        //                currentShotPower = powerShotMin;
-        //            }
-        //        }
-        //    }
-
-        //}
-        //else //not holding ball
-        //{
-        //    if (Input.GetButtonDown("Hold/Shoot")) //Not holding ball, press to pick up
-        //    {
-        //        if (ballInZone)
-        //        {
-        //            Debug.Log("pressed button, not holding ball, ball in zone");
-        //            HoldBall(); //attempt to hold the ball if its within zones area of reach
-        //        }
-        //    }
-        //}
-        //
-
-        //WORKS, DOESNT INCLUDE POWER SHOOTING
-        if (Input.GetButtonDown("Hold/Shoot")) //Pressed Hold/Shoot button. Mouse: Left Click, Controller: Left Bumper
+        if (holdingBall) //Controls specific to when Players are currently holding the ball
         {
-            if (holdingBall) //Holding the ball, Shoot!
+            if (donePressingButton) //you didnt just begin to press the button
             {
-                if (aimDirection != Vector3.zero) //We're aiming, shoot ball in that direction
+                if (Input.GetButton("Hold/Shoot")) //holding button
                 {
-                    ShootBall(aimDirection);
-                }
-                else
-                    ShootBall(transform.forward); //Not aiming, just do defualt quick shot
-            }
-            if (!holdingBall) //Not holding ball, Try to pick up ball!
-            {
-                HoldBall(); //attempt to hold the ball if its within zones area of reach
-            }
-        }
+                    currentShotPower = Mathf.Clamp(currentShotPower + powerModifer, powerShotMin, powerShotMax);
 
-        if (Input.GetButtonDown("SwitchSide")) //Pressed X or LeftClick
-        {
-            if (holdingBall)
+                    //change aim line length to match current power
+                    currentLineLength = ((currentShotPower - powerShotMin) / (powerShotMax - powerShotMin)) * maxLineLength;
+
+                }
+                if (Input.GetButtonUp("Hold/Shoot")) //holding ball, released the button
+                {
+                    
+                    currentLineLength = 0;
+                    if (aimDirection == Vector3.zero)
+                    {
+                        PowerShot(transform.forward, currentShotPower);
+                        //ShootBall(transform.forward);
+                    }
+                    else
+                    {
+                        PowerShot(aimDirection, currentShotPower);
+                        currentShotPower = powerShotMin;
+                    }
+                }
+            }
+            if (Input.GetButtonDown("SwitchSide")) //Pressed X or LeftClick
             {
                 SwitchSides();
             }
         }
+        else //controls specific to not holding ball
+        {
+            if (Input.GetButtonDown("Hold/Shoot")) //Not holding ball, press to pick up
+            {
+                if (ballInZone)
+                {
+                    //Debug.Log("pressed button, not holding ball, ball in zone, starting timer...");
+                    HoldBall(); //attempt to hold the ball if its within zones area of reach
+                    holdCheckTimer.StartTimerForSeconds(.3f); //we dont want to check for button presses for a little bit
+                }
+            }
+        }
+
+
+        ////WORKS, BUT DOESNT INCLUDE POWER SHOOTING:
+        //if (Input.GetButtonDown("Hold/Shoot")) //Pressed Hold/Shoot button. Mouse: Left Click, Controller: Left Bumper
+        //{
+        //    if (holdingBall) //Holding the ball, Shoot!
+        //    {
+        //        if (aimDirection != Vector3.zero) //We're aiming, shoot ball in that direction
+        //        {
+        //            ShootBall(aimDirection);
+        //        }
+        //        else
+        //            ShootBall(transform.forward); //Not aiming, just do defualt quick shot
+        //    }
+        //    if (!holdingBall) //Not holding ball, Try to pick up ball!
+        //    {
+        //        HoldBall(); //attempt to hold the ball if its within zones area of reach
+        //    }
+        //}
+
+        //if (Input.GetButtonDown("SwitchSide")) //Pressed X or LeftClick
+        //{
+        //    if (holdingBall)
+        //    {
+        //        SwitchSides();
+        //    }
+        //}
 
         if (holdingBall)
         {
@@ -277,7 +278,8 @@ public class MalletController : MonoBehaviour
 
                 if (aimDirection != Vector3.zero)
                 {
-                    DrawAimLine(aimDirection);
+                    currentLineLength = Mathf.Clamp(currentLineLength, minLineLength, maxLineLength);
+                    DrawAimLine(aimDirection, currentLineLength);
                 }
             }
         }
@@ -288,6 +290,7 @@ public class MalletController : MonoBehaviour
             aimDirection = Vector3.zero;
         }
     }
+
 
     private void Update()
     {

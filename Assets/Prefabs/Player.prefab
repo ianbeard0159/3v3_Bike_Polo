@@ -205,12 +205,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   useController: 0
   currVel: {x: 0, y: 0, z: 0}
-  shootForce: 200
+  quickShotForce: 200
   shootUpForce: 0.15
-  aimLineLength: 5
+  maxLineLength: 5
   powerShotMin: 200
   powerShotMax: 400
-  powerModifer: 1
+  powerModifer: 0.3
+  currentShotPower: 0
+  currentLineLength: 0
   holdingBall: 0
   ballInZone: 0
   aimDirection: {x: 0, y: 0, z: 0}

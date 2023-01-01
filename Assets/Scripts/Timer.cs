@@ -6,24 +6,35 @@ public class Timer
 {
     public float amount;
     private float timeStamp = -1;
+    private float watchTimeStamp = -1;
 
-    //// Start is called before the first frame update
-    //void Start()
-    //{
-    //    timeStamp = -1;
-    //}
-
-    //Not implemented
-    public void startWatch()
+    //Elapsed number of seconds on the StopWatch
+    public float elapsedTime
     {
-        timeStamp = Time.time;
+        get { return Time.time - watchTimeStamp; }
+    }
+
+    //How many seconds left until timer is done
+    public float timeLeft
+    {
+        get {
+            if (timeStamp < Time.time)
+                return 0;
+            return timeStamp - Time.time; 
+        }
     }
 
     //Not implemented
+    public void StartWatch()
+    {
+        watchTimeStamp = Time.time;
+    }
+
+    //Returns number of seconds since starting watch
     public float StopWatch()
     {
-        float time = 0;
-        return time;
+        //elapsedTime = Time.time - timeStamp;
+        return elapsedTime;
     }
 
     public void StartTimerForSeconds(float seconds)
@@ -33,13 +44,15 @@ public class Timer
     }
     public bool checkTime()
     {
+        //if(timeStamp == -1)
+        //    return false;
+
         if (timeStamp > Time.time)
         {
             return false;
         }
         else
         {
-            //Debug.Log("Timer is up!");
             return true;
         }
     }
