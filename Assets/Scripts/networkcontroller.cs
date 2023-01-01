@@ -10,7 +10,7 @@ using UnityEngine.Networking;
 public class networkcontroller : MonoBehaviour
 {
 
-    [SerializeField] private string server = "http://rtc.zyugyzarc.repl.co/";
+    [SerializeField] private string server = "https://rtc.zyugyzarc.repl.co/";
     [SerializeField] private bool host = false;
 
     [SerializeField] public string gameid;
@@ -34,23 +34,16 @@ public class networkcontroller : MonoBehaviour
     IEnumerator sendSignal(string data){
         // send a POST request to the signaling server
 
-        Debug.Log("bepis");
-
-        var uwr = new UnityWebRequest(server, "POST");
-        byte[] bytesToSend = new System.Text.UTF8Encoding().GetBytes(data);
-        uwr.uploadHandler = (UploadHandler) new UploadHandlerRaw(bytesToSend);
-
-        uwr.SetRequestHeader("Content-Type", "text/plain");
+        UnityWebRequest uwr = new UnityWebRequest(server+gameid, "POST");
         uwr.SetRequestHeader("id", uuid);
+        uwr.SetRequestHeader("sdp", UnityWebRequest.EscapeURL(data));
 
-        //Send the request then wait here until it returns
         yield return uwr.SendWebRequest();
 
-        if (uwr.result == UnityWebRequest.Result.ConnectionError)
+        if (uwr.isNetworkError)
         {
-            Debug.Log($"Error While Sending: {uwr.error}");
+            Debug.Log("Error While Sending: " + uwr.error);
         }
-
     }
 
     IEnumerator receiveSignal(){
@@ -68,7 +61,7 @@ public class networkcontroller : MonoBehaviour
             }
 
             if(uwr.responseCode == 200){
-                yield return uwr.downloadHandler.text;
+                yield return UnityWebRequest.UnEscapeURL(uwr.downloadHandler.text);
                 break;
             }
             else{
@@ -134,10 +127,8 @@ public class networkcontroller : MonoBehaviour
             Debug.Log($"got ICE {ice.Candidate} ({res})");
         };
 
-        while(connection.GatheringState != RTCIceGatheringState.Complete){
-            Debug.Log($"waiting...");
-            yield return null;
-        }
+        // wait 100ms for ICE
+        yield return new WaitForSeconds(0.1f);
 
         Debug.Log("got all candidates");
 
@@ -209,10 +200,8 @@ public class networkcontroller : MonoBehaviour
             Debug.Log($"got ICE {ice.Candidate} ({res})");
         };
 
-        while(connection.GatheringState != RTCIceGatheringState.Complete){
-            Debug.Log($"waiting...");
-            yield return null;
-        }
+        // wait 100ms for ICE
+        yield return new WaitForSeconds(0.1f);
 
         // recreate answer for sdp with ices
         d = connection.CreateAnswer();
