@@ -89,6 +89,9 @@ MonoBehaviour:
   currentStealablePlayer: {fileID: 0}
   aimDirection: {x: 0, y: 0, z: 0}
   useController: 0
+  minShotAngle: 10
+  maxShotAngle: 70
+  aimSmoothTime: 0.15
 --- !u!120 &828627802733978561
 LineRenderer:
   m_ObjectHideFlags: 0
@@ -294,6 +297,7 @@ GameObject:
   - component: {fileID: 828627803792443767}
   - component: {fileID: 828627803792443764}
   - component: {fileID: 828627803792443765}
+  - component: {fileID: 7735418129418459612}
   m_Layer: 0
   m_Name: Player
   m_TagString: Bike
@@ -392,6 +396,21 @@ Animator:
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorControllerStateOnDisable: 0
+--- !u!114 &7735418129418459612
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 828627803792443763}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 96a07aa1e4ca34fcabb8eb197ad8ee64, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  server: https://rtc.zyugyzarc.repl.co/
+  host: 0
+  gameid: 
 --- !u!1 &828627803950605439
 GameObject:
   m_ObjectHideFlags: 0

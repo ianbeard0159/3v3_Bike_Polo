@@ -59,7 +59,7 @@ public class BikeController : MonoBehaviour
         mallet = gameObject.transform.Find("Mallet").gameObject.GetComponent<MalletController>();
         animationController = GetComponent<Animator>();
         setHoldingState("Normal");
-        followTarget = gameObject.transform.Find("Follow Target").transform;
+        followTarget = gameObject.transform.Find("Follow Target").transform;   // <- NULLREF ERROR
 
         Debug.Log("Keyboard/Mouse: Dash on Shift, Hold/Shoot on Left Click, Switch Sides on Right Click");
         Debug.Log("Keyboard/Mouse: WASD to Drive/Turn.");
