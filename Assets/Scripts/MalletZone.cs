@@ -36,7 +36,6 @@ public class MalletZone : MonoBehaviour
             ballInZone = false; //Make sure MalletController knows the ball is within reach and
             mallet.currentZone = null; //which zone side the ball is currently in reach of
         }
-
     }
 
     private void OnTriggerStay(Collider other)

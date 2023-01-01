@@ -7,53 +7,62 @@ using UnityEngine;
 [RequireComponent(typeof(MalletController))]
 public class BikeController : MonoBehaviour
 {
-    //Neccessary components
+
+    //Values can be tweaked to change the feel of the Bike Movement:
+    //Tweaks how the dash works:
+    [SerializeField] public float dashingSpeedModifier = 2.5f; //The modifer that sets the Dash speed based on maxSpeed*dashSpeedMod
+    [SerializeField] private float dashDuration = .5f; //how long the dash lasts in seconds
+    [SerializeField] private float dashCooldown = 5; //how long the cooldown is between dashes
+
+    //Changes the speed limits of the bike
+    [SerializeField] private float maxSpeed = 20;
+    [SerializeField] private float minSpeed = 0;
+
+    //Changes how quickly bike speeds up, slows down
+    [SerializeField] private float acceleration = .06f; //How quickly to reach max speed when speeding up
+    [SerializeField] private float deceleration = .04f; //How quickly yo reach reache min speed when slowing down
+
+    //Changes how quickly bike turns
+    [SerializeField] private float turnSpeedModifer = .3f; //Current speed affects how quickly you turn
+    [SerializeField] private float turnSpeed = 160; //How quickly the bike turns when pressing left/right                                             
+
+    //Changes how much force is applied to the bike when there was a simple collision with bike
+    [SerializeField] private float pushForce = 40f; //How much force is applied to the ball if its pushed by the Bike
+
+    //The current speed/velocity the bike is going
+    private float speed = 0;
+    public Vector3 currVel //Only used to give to Mallet so shots stay accurate
+    {
+        get { return transform.forward * speed; }
+    }
+
+    //Booleans used to animation, logic, etc
+    public bool isDashing;
+
+    //unused for now
+    public float currentBalance = 100; //Based on some equation of speed, maybe turning status, and maybe button presses??
+
+    //Neccessary components and others
     private Transform t;
     private Rigidbody rb;
-    MalletController mallet;
+    private MalletController mallet;
     private Animator animationController;
+    private MalletZone currentZone;
+    private Transform followTarget;
+    private Vector3 lastFollowTargetPos = Vector3.zero;
 
     //Inputs
     private Vector3 inputDir;
 
-    //All these values can be tweaked to change the feel of the movement
-    [SerializeField] public float speed = 0;
-    [SerializeField] public float dashingSpeedModifier = 2.5f; //The modifer that sets the Dash speed based on maxSpeed*dashSpeedMod
-    [SerializeField] private float dashDuration = .5f; //how long the dash lasts in seconds
-    [SerializeField] private float dashCooldown = 5; //how long the cooldown is between dashes
-    [SerializeField] private float maxSpeed = 20;
-    [SerializeField] private float minSpeed = 0;
-    [SerializeField] private float acceleration = .06f; //How quickly spped max speed when speeding up
-    [SerializeField] private float deceleration = .04f; //How quickly speed reaches 0 when slowing down
-
-    [SerializeField] private float turnSpeedModifer = .3f; //Curren speed affects how quickly you turn
-    [SerializeField] private float turnSpeed = 160; //How quickly the bike turns when pressing left/right
-                                                    //Balance will have to do with current turn speed as well
-
-    [SerializeField] private float pushForce = 40f; //How much force is applied to the ball if its pushed by the Bike
-
-    public bool isDashing;
-
-    //Used just to set current velocity of Mallet:
-
-    private Vector3 currentVel;
-
-    public float currentBalance = 100; //Based on some equation of speed, maybe turning status, and maybe button presses??
 
     //Helper timers
     Timer dashDurationTimer;
     Timer dashCooldownTimer;
 
-    
-
     private List<string> holdingStates = new List<string>() {
         "BallHeldLeft",
         "BallHeldRight"
     };
-
-    private MalletZone currentZone;
-    private Transform followTarget;
-    private Vector3 lastFollowTargetPos = Vector3.zero;
 
     private void Awake()
     {
@@ -61,8 +70,6 @@ public class BikeController : MonoBehaviour
         rb = GetComponent<Rigidbody>();
         rb.centerOfMass = Vector3.zero;
         rb.inertiaTensorRotation = new Quaternion(0, 0, 0, 1);
-
-        //mallet = gameObject.transform.Find("MalletController").gameObject.GetComponent<MalletController>();
         mallet = GetComponent<MalletController>();
     }
 
@@ -74,16 +81,16 @@ public class BikeController : MonoBehaviour
         dashDurationTimer = new Timer();
         dashCooldownTimer = new Timer();
 
-        //mallet = transform.parent.gameObject.transform.GetComponentInChildren<MalletController>();
         animationController = GetComponent<Animator>();
         setHoldingState("Normal");
         followTarget = gameObject.transform.Find("Follow Target").transform;
 
-        Debug.Log("Keyboard/Mouse: Dash on Shift, Hold/Shoot on Left Click, Switch Sides on Right Click");
-        Debug.Log("Keyboard/Mouse: WASD to Drive/Turn.");
-        Debug.Log("(Xbox) Controller: Triggers to Drive, Left Stick to Turn");
-        Debug.Log("(Xbox) Controller: Dash on X, Hold/Shoot on Left Bumper, Switch Sides on X (holding ball");
+        //Debug.Log("Keyboard/Mouse: Dash on Shift, Hold/Shoot on Left Click, Switch Sides on Right Click");
+        //Debug.Log("Keyboard/Mouse: WASD to Drive/Turn.");
+        //Debug.Log("(Xbox) Controller: Triggers to Drive, Left Stick to Turn");
+        //Debug.Log("(Xbox) Controller: Dash on X, Hold/Shoot on Left Bumper, Switch Sides on X (holding ball");
     }
+
     private void setHoldingState(string in_param) {
         // If the input parameter is not within the list, then
         //    all parameters are set to false, resulting in the 
@@ -115,7 +122,8 @@ public class BikeController : MonoBehaviour
         return direction;
     }
 
-    //Pushes the ball with a force defined by pushForce if bike collides with it
+    //Collision Enters
+    //Hitting Ball: Pushes the ball with a force defined by pushForce if bike collides with it
     private void OnCollisionEnter(Collision collision)
     {
         if (collision.gameObject.tag == "Ball")
@@ -124,6 +132,9 @@ public class BikeController : MonoBehaviour
             collision.rigidbody.AddForce(pushForce * direction);
         }
     }
+
+    //Collision Stays:
+    //Walls: abort the dash (fixes bugs with going through wall when dashing)
     private void OnCollisionStay(Collision collision)
     {
         if (collision.gameObject.tag == "Wall")
@@ -160,7 +171,7 @@ public class BikeController : MonoBehaviour
     {
         if (isDashing)
         {
-            //speed = dashingSpeed;
+            //dont even both with calculating speed, we have a set speed while dashing
             return;
         }
 
@@ -204,12 +215,7 @@ public class BikeController : MonoBehaviour
             }
         }
 
-        currentVel = transform.forward * speed;
-        if(mallet != null)
-        {
-            mallet.currVel = currentVel;
-        }
-       
+        mallet.currVel = currVel;
         turnSpeed = (speed * speed) * turnSpeedModifer + 20;
 
     }
