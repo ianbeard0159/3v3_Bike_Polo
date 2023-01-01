@@ -2,10 +2,18 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+[RequireComponent(typeof(Rigidbody))]
+[RequireComponent(typeof(Animator))]
+[RequireComponent(typeof(MalletController))]
 public class BikeController : MonoBehaviour
 {
+    //Neccessary components
     private Transform t;
     private Rigidbody rb;
+    MalletController mallet;
+    private Animator animationController;
+
+    //Inputs
     private Vector3 inputDir;
 
     //All these values can be tweaked to change the feel of the movement
@@ -27,7 +35,7 @@ public class BikeController : MonoBehaviour
     public bool isDashing;
 
     //Used just to set current velocity of Mallet:
-    MalletController mallet;
+
     private Vector3 currentVel;
 
     public float currentBalance = 100; //Based on some equation of speed, maybe turning status, and maybe button presses??
@@ -36,27 +44,37 @@ public class BikeController : MonoBehaviour
     Timer dashDurationTimer;
     Timer dashCooldownTimer;
 
-    private Animator animationController;
+    
+
     private List<string> holdingStates = new List<string>() {
         "BallHeldLeft",
         "BallHeldRight"
     };
+
     private MalletZone currentZone;
     private Transform followTarget;
     private Vector3 lastFollowTargetPos = Vector3.zero;
 
-    // Start is called before the first frame update
-    void Start()
+    private void Awake()
     {
         t = GetComponent<Transform>();
         rb = GetComponent<Rigidbody>();
+        rb.centerOfMass = Vector3.zero;
+        rb.inertiaTensorRotation = new Quaternion(0, 0, 0, 1);
 
+        //mallet = gameObject.transform.Find("MalletController").gameObject.GetComponent<MalletController>();
+        mallet = GetComponent<MalletController>();
+    }
+
+    // Start is called before the first frame update
+    void Start()
+    {
         isDashing = false;
 
         dashDurationTimer = new Timer();
         dashCooldownTimer = new Timer();
 
-        mallet = gameObject.transform.Find("Mallet").gameObject.GetComponent<MalletController>();
+        //mallet = transform.parent.gameObject.transform.GetComponentInChildren<MalletController>();
         animationController = GetComponent<Animator>();
         setHoldingState("Normal");
         followTarget = gameObject.transform.Find("Follow Target").transform;
@@ -72,9 +90,11 @@ public class BikeController : MonoBehaviour
         //    animator being set to the "normal" holding state
         foreach (string key in holdingStates) {
             if (key == in_param) {
+                //Debug.Log(key + " is valid, setting animation bool true");
                 animationController.SetBool(key, true);
             }
             else {
+                //Debug.Log(key + " is invalid, setting animation bool false");
                 animationController.SetBool(key, false);
             }
         }
@@ -185,7 +205,11 @@ public class BikeController : MonoBehaviour
         }
 
         currentVel = transform.forward * speed;
-        mallet.currVel = currentVel;
+        if(mallet != null)
+        {
+            mallet.currVel = currentVel;
+        }
+       
         turnSpeed = (speed * speed) * turnSpeedModifer + 20;
 
     }
@@ -200,12 +224,15 @@ public class BikeController : MonoBehaviour
     private void updateHoldingState() {
         // Only change the camera if the ball is 
         //    actually being held
-        if (!mallet.holdingBall) {
+
+        if (!mallet.holdingBall)
+        {
             setHoldingState("Normal");
             return;
         }
         currentZone = mallet.currentZone;
-        switch (currentZone?.name) {
+        switch (currentZone?.name)
+        {
             case "RightZone":
                 setHoldingState("BallHeldRight");
                 break;
@@ -216,6 +243,8 @@ public class BikeController : MonoBehaviour
                 setHoldingState("Normal");
                 break;
         }
+        
+
     }
 
     //Dash that has a cooldown, locks you into direction, and lasts for a determined number of seconds

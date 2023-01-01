@@ -6,36 +6,37 @@ using Cinemachine;
 
 //This class handles everything soecific to controlling the "mallet" and ball
 //Shooting the ball, holding the ball, moving the ball to either side, etc
+[RequireComponent(typeof(BikeController))]
+[RequireComponent(typeof(LineRenderer))]
 public class MalletController : MonoBehaviour
 {
-
-    public Rigidbody ballRB;
-    public float shootForce;    //The force that is applied to the ball when shooting with the mallet
-    public float shootUpForce = .15f;
-    public float aimLineLength = 5;
-
-    public bool holdingBall;    //Is tje ball currently being held in the mallets hold position?
-    public bool ballInZone;     //Is the ball in one of its trigger colliders?
-
-    public Vector3 currVel;     //Current velocity, set by BikeController
-
+    //Components and Stuff
     MalletZone malletLeftZone;        //Mallets area of reach on the left side
     MalletZone malletRightZone;        //Mallets area of reach on the left side
     public MalletZone currentZone;      //The zone that is currently holding the ball
+    public Rigidbody ballRB;            //In order to be able to apply forces to ball
+    LineRenderer aimLine;               //The line renderer that draws the aim line on screen
 
+    //For shooting the ball, tweakable values to change the feel
+    [SerializeField] private float shootForce = 200;   //The force that is applied to the ball when shooting with the mallet
+    [SerializeField] private float shootUpForce = .15f; //How much upwards force the ball receives when shot
+    [SerializeField] public float aimLineLength = 5; //How long the aim line is from ball, also affects where the camera will look
+    public Vector3 currVel;     //Current velocity, set by BikeController
 
-    public MalletController currentStealablePlayer;
-
+    //For holding the ball with mallet
+    public bool holdingBall;    //Is tje ball currently being held in the mallets hold position?
+    public bool ballInZone;     //Is the ball in one of its trigger colliders?
+   
+    //For aiming
     public Vector3 aimDirection;
-   // public Vector3 rotatedAimDirection;
-    LineRenderer aimLine;
-
-    public bool useController = true;
-    private Vector3 aimVelocity = Vector3.zero;
-    public float minShotAngle = 10f;
+    public float minShotAngle = 10f; 
     public float maxShotAngle = 70f;
+    //For Smoothing Aim
     public float aimSmoothTime = 0.15f;
+    private Vector3 aimVelocity = Vector3.zero;
 
+    //For testing purposes
+    public bool useController = true;
 
     void Start()
     {
@@ -116,7 +117,6 @@ public class MalletController : MonoBehaviour
                 ballRB.transform.position = malletRightZone.holdSpot; //Move it to the other pocket
                 currentZone = malletRightZone;  //update current zone
             }
-
         }
     }
 
