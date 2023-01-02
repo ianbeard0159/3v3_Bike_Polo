@@ -37,6 +37,7 @@ public class Timer
         return elapsedTime;
     }
 
+    //Start a timer for a given number of seconds, use CheckTime() to see if timer has elapsed
     public void StartTimerForSeconds(float seconds)
     {
         timeStamp = Time.time + seconds;

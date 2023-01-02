@@ -7,12 +7,12 @@ using UnityEngine;
 [RequireComponent(typeof(MalletController))]
 public class BikeController : MonoBehaviour
 {
-
     //Values can be tweaked to change the feel of the Bike Movement:
     //Tweaks how the dash works:
     [SerializeField] public float dashingSpeedModifier = 2.5f; //The modifer that sets the Dash speed based on maxSpeed*dashSpeedMod
     [SerializeField] private float dashDuration = .5f; //how long the dash lasts in seconds
     [SerializeField] private float dashCooldown = 5; //how long the cooldown is between dashes
+    [SerializeField] private float dashTurnSpeed = 50; //how fast bike turns only when dashing
 
     //Changes the speed limits of the bike
     [SerializeField] private float maxSpeed = 20;
@@ -23,11 +23,12 @@ public class BikeController : MonoBehaviour
     [SerializeField] private float deceleration = .04f; //How quickly yo reach reache min speed when slowing down
 
     //Changes how quickly bike turns
-    [SerializeField] private float turnSpeedModifer = .3f; //Current speed affects how quickly you turn
-    [SerializeField] private float turnSpeed = 160; //How quickly the bike turns when pressing left/right                                             
+    //[SerializeField] private float turnSpeedModifer = .3f; //Current speed affects how quickly you turn
+    [SerializeField] private float turnSpeed = 160; //How quickly the bike turns when pressing left/right
+    [SerializeField] private float maxTurnSpeed = 180;  //maxTurnSpeed is hit when speed is 0
+    [SerializeField] private float minTurnSpeed = 20;    //maxTurnSpeed is hit when speed is at max
 
-    //Changes how much force is applied to the bike when there was a simple collision with bike
-    [SerializeField] private float pushForce = 40f; //How much force is applied to the ball if its pushed by the Bike
+    [SerializeField] private float pushForce = 40f; //Changes how much force is applied to the ball when collided with
 
     //The current speed/velocity the bike is going
     private float speed = 0;
@@ -39,8 +40,7 @@ public class BikeController : MonoBehaviour
     //Booleans used to animation, logic, etc
     public bool isDashing;
 
-    //unused for now
-    public float currentBalance = 100; //Based on some equation of speed, maybe turning status, and maybe button presses??
+    //public float currentBalance = 100; //Based on some equation of speed, maybe turning status, and maybe button presses??
 
     //Neccessary components and others
     private Transform t;
@@ -53,7 +53,6 @@ public class BikeController : MonoBehaviour
 
     //Inputs
     private Vector3 inputDir;
-
 
     //Helper timers
     Timer dashDurationTimer;
@@ -105,16 +104,11 @@ public class BikeController : MonoBehaviour
         }
     }
 
+    //Determines direction of bike based on bike
     private Vector3 GetInputDirection()
     {
-        float turnAmount = 0;
-        float driveAmount = 0;
-
-        if (!isDashing)
-        {
-            turnAmount = Input.GetAxis("Turn"); //Left/Right keys, A/D keys, or Left joystick on controller
-            driveAmount = Input.GetAxis("Drive"); //Down/Up, S/W or Left/Right trigger on controller
-        }
+        float turnAmount = Input.GetAxis("Turn"); //Left/Right keys, A/D keys, or Left joystick on controller
+        float driveAmount = Input.GetAxis("Drive"); //Down/Up, S/W or Left/Right trigger on controller
 
         Vector3 direction = new Vector3(turnAmount, 0, driveAmount);
         return direction;
@@ -151,71 +145,52 @@ public class BikeController : MonoBehaviour
     //TODO
     public void CalculateBalance()
     {
-        //Mathf.Clamp(currentBalance, 0, 100);
 
-        //if(speed >= maxSpeed / 2)
-        //    {
-        //        currentBalance--;
-        //    }
+    }
 
-        //if(speed < maxSpeed / 2)
-        //    {
-        //        currentBalance++;
-        //    }
+   //Turn speed is based on speed
+   //also decided by if Player is Dashing or not
+   public void CalculateTurnSpeed()
+   {
+        float absSpeed = Mathf.Abs(speed);
+
+        //Linear Relation. Going faster -> turning slower
+        turnSpeed = (1 - (absSpeed / maxSpeed)) * maxTurnSpeed;
+
+        //Curved relation, Going faster -> turning faster
+        //turnSpeed = (speed * speed) * turnSpeedModifer + 20;
+
+        //Curved relation, Going faster -> turning slower
+        //if (speed == 0)
+        //turnSpeed = maxTurnSpeed;
+        // else
+        //{
+        //turnSpeed = (1 / absSpeed) * 2000; //2000 is temp standin for modifier
+        // }
+
+        turnSpeed = Mathf.Clamp(turnSpeed, minTurnSpeed, maxTurnSpeed);
     }
 
     //Calculates and sets what the current speed is
     public void CalculateSpeed(float zInput)
     {
-        if (isDashing)
-        {
-            //dont even both with calculating speed, we have a set speed while dashing
-            return;
-        }
-
-        if(speed > maxSpeed)
-        {
-            speed = maxSpeed;
-        }
-
         //Press up or down?
         if (zInput > 0 && speed < maxSpeed) //Speeding up with up key up right trigger
-        {
-            if (speed < maxSpeed) //Speed is less than max speed, speed up
-            {
                 speed += acceleration;
-            }
-            else
-            {
-                speed = maxSpeed; //No speeding up, already Too fast
-            }
-        }
         if (zInput < 0) //Slowing down with down key or right trigger, maybe add reverse here
-        {
-            if (speed > minSpeed) //Speed is more than the min speed, slow down
-            {
                 speed -= deceleration;
-            }
-            else
-            {
-                speed = minSpeed; //No slowing down, already Too slow
-            }
-        }
-        if (zInput == 0) //Not pressing any keys, slow down more gradually to a halt
+
+        //Not pressing any keys, slow down more gradually to a halt
+        if (zInput == 0) 
         {
             if (speed > 0)
-            {
                 speed -= deceleration / 2;
-            }
             else
-            {
                 speed = 0;
-            }
         }
 
-        mallet.currVel = currVel;
-        turnSpeed = (speed * speed) * turnSpeedModifer + 20;
-
+        speed = Mathf.Clamp(speed, minSpeed, maxSpeed);
+        mallet.currVel = currVel; //make sure mallet knows what velocity we're going so shooting stay accurate
     }
 
     public void MovePositioRB(Vector3 direction)
@@ -248,8 +223,6 @@ public class BikeController : MonoBehaviour
                 setHoldingState("Normal");
                 break;
         }
-        
-
     }
 
     //Dash that has a cooldown, locks you into direction, and lasts for a determined number of seconds
@@ -259,6 +232,7 @@ public class BikeController : MonoBehaviour
         dashDurationTimer.StartTimerForSeconds(dashDuration);
         isDashing = true;
         speed = dashingSpeedModifier * maxSpeed;
+        turnSpeed = dashTurnSpeed;
     }
 
     public void GetButtonInputs()
@@ -305,7 +279,13 @@ public class BikeController : MonoBehaviour
         }
 
         inputDir = GetInputDirection();
-        CalculateSpeed(inputDir.z);
+
+        if (!isDashing)  //Speed and turn speed are constants when dashing, no need to calculate
+        {
+            CalculateSpeed(inputDir.z);
+            CalculateTurnSpeed();
+        }
+
         CalculateBalance();
         GetButtonInputs();
     }
