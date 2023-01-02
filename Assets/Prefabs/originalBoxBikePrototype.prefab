@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: 985931691699721242}
   - component: {fileID: 985931691699721243}
   m_Layer: 0
-  m_Name: Bike
+  m_Name: originalBoxBikePrototype
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
