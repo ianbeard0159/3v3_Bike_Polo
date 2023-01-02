@@ -3064,7 +3064,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3663398039767710909, guid: 7f75482aa5a779f45a6d1476599a2f4f, type: 3}
       propertyPath: m_LocalRotation.z
-      value: -0.038310703
+      value: -0.03831071
       objectReference: {fileID: 0}
     - target: {fileID: 3663398039865428673, guid: 7f75482aa5a779f45a6d1476599a2f4f, type: 3}
       propertyPath: m_LocalPosition.z
@@ -6549,18 +6549,6 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 1
       objectReference: {fileID: 0}
-    - target: {fileID: 1454592364119341160, guid: f699bd08a11e0a946a25f1c15a9b0276, type: 3}
-      propertyPath: isDashing
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1454592364119341160, guid: f699bd08a11e0a946a25f1c15a9b0276, type: 3}
-      propertyPath: maxTurnSpeed
-      value: 200
-      objectReference: {fileID: 0}
-    - target: {fileID: 1454592364119341160, guid: f699bd08a11e0a946a25f1c15a9b0276, type: 3}
-      propertyPath: minTurnSpeed
-      value: 100
-      objectReference: {fileID: 0}
     - target: {fileID: 1454592364119341162, guid: f699bd08a11e0a946a25f1c15a9b0276, type: 3}
       propertyPath: m_Name
       value: Player
@@ -6611,10 +6599,6 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1454592364535829862, guid: f699bd08a11e0a946a25f1c15a9b0276, type: 3}
       propertyPath: m_IsActive
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 4679439159304882382, guid: f699bd08a11e0a946a25f1c15a9b0276, type: 3}
-      propertyPath: useController
       value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []

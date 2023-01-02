@@ -187,13 +187,11 @@ MonoBehaviour:
   minSpeed: -5
   acceleration: 0.06
   deceleration: 0.04
-  turnSpeedModifer: 0.4
   turnSpeed: 160
   maxTurnSpeed: 200
   minTurnSpeed: 100
   pushForce: 40
   isDashing: 0
-  currentBalance: 0
 --- !u!114 &4679439159304882382
 MonoBehaviour:
   m_ObjectHideFlags: 0
