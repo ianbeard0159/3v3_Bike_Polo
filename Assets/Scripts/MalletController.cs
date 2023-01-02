@@ -46,6 +46,7 @@ public class MalletController : MonoBehaviour
     public MalletZone currentZone;      //The zone that is currently holding the ball
     public Rigidbody ballRB;            //In order to be able to apply forces to ball
     LineRenderer aimLine;               //The line renderer that draws the aim line on screen
+
     private void Awake()
     {
         malletRightZone = gameObject.transform.GetChild(0).gameObject.GetComponent<MalletZone>();
@@ -61,6 +62,12 @@ public class MalletController : MonoBehaviour
         //Debug.Log("Right click or press X on controller to switch sides");
         //Debug.Log("Left click/hold or press/hold Left Bumper on controller to pick up Ball");
         //Debug.Log("Click LeftClick or Left Bumper on controller to Shoot Ball while holding it");
+    }
+
+    public void enableZones(bool onOff)
+    {
+        malletLeftZone.enableZone(onOff);
+        malletRightZone.enableZone(onOff);
     }
 
     public void DrawAimLine(Vector3 direction, float lineLength)

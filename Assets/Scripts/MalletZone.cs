@@ -28,12 +28,17 @@ public class MalletZone : MonoBehaviour
         playerInZone = false;
     }
 
+    public void enableZone(bool onOff)
+    {
+        zone.enabled = onOff;
+    }
+
     private void OnTriggerExit(Collider other)
     {
         if (other.tag == "Ball")
         {
             mallet.ballInZone = false;
-            ballInZone = false; //Make sure MalletController knows the ball is within reach and
+           // ballInZone = false; //Make sure MalletController knows the ball is within reach and
             mallet.currentZone = null; //which zone side the ball is currently in reach of
         }
     }
@@ -43,7 +48,7 @@ public class MalletZone : MonoBehaviour
         if (other.tag == "Ball")
         {
             mallet.ballInZone = true;
-            ballInZone = true; //Make sure MalletController knows the ball is within reach and
+            //ballInZone = true; //Make sure MalletController knows the ball is within reach and
             mallet.currentZone = this; //which zone side the ball is currently in reach of
             mallet.ballRB = other.attachedRigidbody; //Grab the RB information of the ball to give to MalletController
         }

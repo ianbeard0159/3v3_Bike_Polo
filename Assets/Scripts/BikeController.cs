@@ -7,6 +7,15 @@ using UnityEngine;
 [RequireComponent(typeof(MalletController))]
 public class BikeController : MonoBehaviour
 {
+    // Maximum value for balance (either direction); measured as 0 to 100
+    private const float MAX_BALANCE_LIMIT = 100;
+    // Balance value past which the player becomes at risk of "falling over"
+    private const float BALANCE_DANGER_THRESHOLD = 90;
+    // Maximum number of degrees the bike can rotate before being considered "fallen over"
+    private const float MAX_BALANCE_ROTATION = 30;
+    // Degrees to rotate the bike when it has fallen over
+    private const float FALLEN_OVER_ROTATION = 75;
+
     //Values can be tweaked to change the feel of the Bike Movement:
     //Tweaks how the dash works:
     [SerializeField] public float dashingSpeedModifier = 2.5f; //The modifer that sets the Dash speed based on maxSpeed*dashSpeedMod
@@ -37,8 +46,18 @@ public class BikeController : MonoBehaviour
         get { return transform.forward * speed; }
     }
 
+    // Balance variables
+    public float currBalance = 0; // The current balance value of the bike
+    public float turnSpeedBalanceModifier = 0.1f;
+    private bool isInBalanceDangerZone = false; // Boolean which returns if the player's balance is in the "balance danger zone," meaning the player is at risk of falling over
+    private Timer balanceDangerTimer; // Timer used to determine if player has stayed in the "balance danger zone" for too long and should fall over
+    public float balanceDangerZoneTimeLimit = 2f; // How long the player can be in the "balance danger zone" before falling over
+
     //Booleans used to animation, logic, etc
     public bool isDashing;
+
+    // I've fallen, and I can't get up!
+    public bool isFallen;
 
     //public float currentBalance = 100; //Based on some equation of speed, maybe turning status, and maybe button presses??
 
@@ -49,6 +68,7 @@ public class BikeController : MonoBehaviour
     private Animator animationController;
     private MalletZone currentZone;
     private Transform followTarget;
+    private Transform bikeModel;
     private Vector3 lastFollowTargetPos = Vector3.zero;
 
     //Inputs
@@ -70,6 +90,7 @@ public class BikeController : MonoBehaviour
         rb.centerOfMass = Vector3.zero;
         rb.inertiaTensorRotation = new Quaternion(0, 0, 0, 1);
         mallet = GetComponent<MalletController>();
+        bikeModel = gameObject.transform.GetChild(3).gameObject.GetComponent<Transform>();
     }
 
     // Start is called before the first frame update
@@ -79,6 +100,7 @@ public class BikeController : MonoBehaviour
 
         dashDurationTimer = new Timer();
         dashCooldownTimer = new Timer();
+        balanceDangerTimer = new Timer();
 
         animationController = GetComponent<Animator>();
         setHoldingState("Normal");
@@ -143,9 +165,22 @@ public class BikeController : MonoBehaviour
     }
 
     //TODO
-    public void CalculateBalance()
+    public void CalculateBalanceShift()
     {
+        float balanceShiftRate = 0;
 
+        // Balance is affected by how much the bike is currently turning
+        balanceShiftRate += turnSpeed * inputDir.x * turnSpeedBalanceModifier;
+
+        // Bike balance naturally attempts to return to 0 if the player is not turning significantly
+        if (Mathf.Abs(inputDir.x) <= 0.25f)
+        {
+            if (currBalance < 0)
+                balanceShiftRate += 1;
+            else if (currBalance > 0)
+                balanceShiftRate -= 1;
+        }
+        UpdateBalance(balanceShiftRate);
     }
 
    //Turn speed is based on speed
@@ -200,6 +235,76 @@ public class BikeController : MonoBehaviour
         rb.MoveRotation(rb.rotation * turn);
         rb.MovePosition(rb.position + (transform.forward * speed * Time.fixedDeltaTime));
     }
+
+    // Update the bike's current balance value
+    public void UpdateBalance(float changeInBalance)
+    {
+        if (isFallen)
+            return;
+
+        // Clamp the balance value
+        currBalance = Mathf.Clamp(currBalance + changeInBalance, -MAX_BALANCE_LIMIT, MAX_BALANCE_LIMIT);
+
+        // Rotate the bike model based on the current balance
+        RotateBikeModel((currBalance / MAX_BALANCE_LIMIT) * MAX_BALANCE_ROTATION);
+
+        // If the bike has entered the "balance danger zone," then flag it and start the related timer
+        if (!isInBalanceDangerZone && Mathf.Abs(currBalance) >= BALANCE_DANGER_THRESHOLD)
+        {
+            isInBalanceDangerZone = true;
+            balanceDangerTimer.StartTimerForSeconds(balanceDangerZoneTimeLimit);
+        }
+    }
+
+
+    public void RotateBikeModel(float xRotation)
+    {
+        Quaternion modelRotation = Quaternion.Euler(new Vector3(xRotation, 90, 0));
+        bikeModel.localRotation = modelRotation;
+
+        float xShiftAmount = (xRotation / FALLEN_OVER_ROTATION) * 1.9f;
+        float yShiftAmount = (Mathf.Abs(xRotation) / FALLEN_OVER_ROTATION) * 0.8f;
+        if (Mathf.Abs(xRotation) >= 75)
+            yShiftAmount = 1.4f;
+        bikeModel.localPosition = new Vector3(xShiftAmount, -yShiftAmount, 0);
+    }
+
+    public void BalanceDangerCheck() // rename???
+    {
+        // If player is not in the "balance danger zone" then do nothing
+        if (!isInBalanceDangerZone || isFallen)
+            return;
+
+        // If the player has remained in the "balance danger zone" for too long then they fall over
+        if (balanceDangerTimer.checkTime())
+        {
+            // TODO there might be some more things to do in here that are "distinct" from falling over?
+            Debug.Log("You fell off balance!");
+            // TODO probably should be something more to do when you fall over, might warrant its own function?
+            FallOver();
+            isInBalanceDangerZone = false;
+            balanceDangerTimer.CancelTimer();
+            return;
+        }
+
+        // If the player is at risk of losing their balance BUT is no longer in the "balance danger zone,"
+        // then their timer which records how long they have been in the "balance danger zone" should begin "ticking up"
+        Debug.Log("TIME LEFT UNTIL BALANCE LOST: " + balanceDangerTimer.timeLeft);
+        if (Mathf.Abs(currBalance) < BALANCE_DANGER_THRESHOLD)
+        {
+            // If the player has stayed out of the "balance danger zone" until the timer has completely "ticked up" to full, then they are no longer considered in danger
+            if (balanceDangerTimer.timeLeft > balanceDangerZoneTimeLimit)
+            {
+                Debug.Log("Balance restored!");
+                isInBalanceDangerZone = false;
+                balanceDangerTimer.CancelTimer();
+            }
+            // Else, add seconds back to the timer
+            else
+                balanceDangerTimer.AddSecondsToTimer(Time.deltaTime * 2);
+        }
+    }
+
     private void updateHoldingState() {
         // Only change the camera if the ball is 
         //    actually being held
@@ -237,6 +342,10 @@ public class BikeController : MonoBehaviour
 
     public void GetButtonInputs()
     {
+        if (Input.GetButtonDown("GetUp"))
+        {
+            GetUp();
+        }
         //Check for input,
         //check to make sure we're not already dashing,
         //check that we're not holding ball,
@@ -246,6 +355,28 @@ public class BikeController : MonoBehaviour
         {
                 Dash();
         }
+    }
+
+    public void FallOver()
+    {
+        speed = maxSpeed / 4;
+        mallet.DropBall();
+        mallet.enableZones(false);
+
+        isFallen = true;
+
+        if (currBalance < 0)
+            RotateBikeModel(-FALLEN_OVER_ROTATION);
+        else
+            RotateBikeModel(FALLEN_OVER_ROTATION);
+    }
+
+    public void GetUp()
+    {
+        RotateBikeModel(0);
+        currBalance = 0;
+        isFallen = false;
+        mallet.enableZones(true);
     }
 
     void FixedUpdate()
@@ -280,13 +411,14 @@ public class BikeController : MonoBehaviour
 
         inputDir = GetInputDirection();
 
-        if (!isDashing)  //Speed and turn speed are constants when dashing, no need to calculate
+        if (!isDashing && !isFallen)  //Speed and turn speed are constants when dashing, no need to calculate
         {
             CalculateSpeed(inputDir.z);
             CalculateTurnSpeed();
         }
 
-        CalculateBalance();
+        CalculateBalanceShift();
+        BalanceDangerCheck();
         GetButtonInputs();
     }
 }

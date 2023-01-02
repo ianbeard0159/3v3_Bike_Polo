@@ -43,6 +43,22 @@ public class Timer
         timeStamp = Time.time + seconds;
         //Debug.Log("Starting a timer for " + seconds + " seconds");
     }
+
+    // Add seconds onto an active timer
+    public void AddSecondsToTimer(float seconds)
+    {
+        if (timeStamp < 0)
+            return;
+
+        timeStamp += seconds;
+    }
+
+    // Resets the timestamp
+    public void CancelTimer()
+    {
+        timeStamp = -1;
+    }
+
     public bool checkTime()
     {
         //if(timeStamp == -1)
