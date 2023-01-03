@@ -191,7 +191,11 @@ MonoBehaviour:
   maxTurnSpeed: 200
   minTurnSpeed: 100
   pushForce: 40
+  turningBalanceModifier: 0.0025
+  currBalance: 0
+  dangerZoneTimeLimit: 2
   isDashing: 0
+  isFallen: 0
 --- !u!114 &4679439159304882382
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -208,11 +212,11 @@ MonoBehaviour:
   currVel: {x: 0, y: 0, z: 0}
   quickShotForce: 200
   shootUpForce: 0.15
+  currentShotPower: 0
+  currentLineLength: 0
   powerShotMin: 200
   powerShotMax: 400
   powerModifer: 0.3
-  currentShotPower: 0
-  currentLineLength: 0
   maxLineLength: 8
   minLineLength: 2
   holdingBall: 0

@@ -16,11 +16,11 @@ public class MalletController : MonoBehaviour
     [SerializeField] private float shootUpForce = .15f; //How much upwards force the ball receives when shot
 
     //For power shooting the ball
+    public float currentShotPower;
+    public float currentLineLength; //How long the aim line is/corresponds with current shot power, also affects where the camera will look
     [SerializeField] private float powerShotMin = 200;
     [SerializeField] private float powerShotMax = 400;
     [SerializeField] private float powerModifer = 1; //how much power intensifies each frame holding shoot button
-    public float currentShotPower;
-    public float currentLineLength; //How long the aim line is/corresponds with current shot power, also affects where the camera will look
     [SerializeField] private float maxLineLength = 5; //length that goes with max shooting power
     [SerializeField] private float minLineLength = 1; //for aiming purposes without needing to hold shoot button
 
@@ -64,12 +64,20 @@ public class MalletController : MonoBehaviour
         //Debug.Log("Click LeftClick or Left Bumper on controller to Shoot Ball while holding it");
     }
 
+    //Turn on or off the players "pick up zones"
     public void enableZones(bool onOff)
     {
         malletLeftZone.enableZone(onOff);
         malletRightZone.enableZone(onOff);
+
+        if(onOff == false) //if we're turning off the zones
+        {
+            ballInZone = false;  //then ball cant be in those zones
+        }
+       
     }
 
+    //Draws an aiming line from the player, towards a direction, for a given length
     public void DrawAimLine(Vector3 direction, float lineLength)
     {
         if(holdingBall) //Only aim when we are holding the ball and could theoretically shoot
@@ -89,6 +97,7 @@ public class MalletController : MonoBehaviour
         }
     }
 
+    //Stop drawing aim line
     public void DisableLine()
     {
         aimLine.enabled = false;
@@ -120,7 +129,7 @@ public class MalletController : MonoBehaviour
         direction.y = shootUpForce;
 
         ballRB.AddForce(currVel + (power * direction));
-        Debug.Log("shot at power level: " + currentShotPower);
+        Debug.Log("Shot at power level: " + currentShotPower);
 
         currentShotPower = powerShotMin; //reset shot power when down
         DropBall();
@@ -219,6 +228,7 @@ public class MalletController : MonoBehaviour
     }
 
     //Get inputs from player to control things related to "Mallet use" or manipulating the ball
+    //Based on inputs, calls certain methods or sets certain variables in order to perform related actions
     private void getMalletInputs()
     {
         //For Controls specific to holding the ball: Aiming, Shooting, Switching Hold Side

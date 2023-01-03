@@ -31,6 +31,10 @@ public class MalletZone : MonoBehaviour
     public void enableZone(bool onOff)
     {
         zone.enabled = onOff;
+        if (onOff == false) //if we're turning off the zones
+        {
+            ballInZone = false;  //then ball cant be in those zones
+        }
     }
 
     private void OnTriggerExit(Collider other)
